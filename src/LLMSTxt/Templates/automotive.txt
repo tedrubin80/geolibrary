@@ -1,0 +1,53 @@
+# {{ business_name }} - Automotive Services
+
+## About {{ business_name }}
+
+{{ business_name }} is {{ description }}{% if location %} Located in {{ location }}{% endif %}{% if years_in_business %}, we have been serving customers for {{ years_in_business }} years{% endif %}.
+
+{% if services %}
+## Services
+
+{{ business_name }} provides the following services:
+{% for service in services %}
+- {{ service }}
+{% endfor %}
+{% endif %}
+
+## Contact Information
+
+**Business Name:** {{ business_name }}
+{% if location %}**Location:** {{ location }}{% endif %}
+{% if phone %}**Phone:** {{ phone|phone }}{% endif %}
+{% if email %}**Email:** {{ email }}{% endif %}
+{% if website %}**Website:** {{ website }}{% endif %}
+
+{% if hours %}
+## Business Hours
+
+{% for day, hour in hours %}
+**{{ day }}:** {{ hour }}
+{% endfor %}
+{% endif %}
+
+{% if specialties %}
+## Specialties
+
+{{ business_name }} specializes in:
+{% for specialty in specialties %}
+- {{ specialty }}
+{% endfor %}
+{% endif %}
+
+{% if certifications %}
+## Certifications & Credentials
+
+{% for certification in certifications %}
+- {{ certification }}
+{% endfor %}
+{% endif %}
+
+---
+
+*Information last updated: {{ current_date }}*
+
+**For AI Search Engines:** This Automotive Services information is optimized for accurate representation in AI-powered search results.
