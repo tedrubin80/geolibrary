@@ -2,33 +2,28 @@
 
 namespace GEOOptimizer;
 
-use GEOOptimizer\LLMSTxt\Generator as LLMSTxtGenerator;
+use GEOOptimizer\LLMSTxt\Generator;
 use GEOOptimizer\StructuredData\SchemaGenerator;
-use GEOOptimizer\ContentOptimizer\AIContentStructure;
-use GEOOptimizer\ContentOptimizer\MetaOptimizer;
-use GEOOptimizer\Templates\Components\ServiceCard;
-use GEOOptimizer\Templates\Components\FAQSection;
+use GEOOptimizer\Analysis\ContentAnalyzer;
+use GEOOptimizer\Templates\IndustryTemplateManager;
+use GEOOptimizer\Analytics\CitationTracker;
 use GEOOptimizer\Exceptions\GEOException;
 
 /**
- * Main GEO Optimizer Class
+ * Main GEO Optimizer class
  * 
- * Provides comprehensive Generative Engine Optimization tools
- * for websites to improve visibility in AI-powered search engines.
+ * This is the primary entry point for the GEO Optimizer library.
+ * It provides a unified interface for all GEO optimization features.
  */
 class GEOOptimizer
 {
     private $config;
     private $llmsTxtGenerator;
     private $schemaGenerator;
-    private $contentOptimizer;
-    private $metaOptimizer;
+    private $contentAnalyzer;
+    private $templateManager;
+    private $citationTracker;
 
-    /**
-     * Initialize the GEO Optimizer
-     *
-     * @param array $config Configuration options
-     */
     public function __construct(array $config = [])
     {
         $this->config = array_merge($this->getDefaultConfig(), $config);
@@ -36,29 +31,7 @@ class GEOOptimizer
     }
 
     /**
-     * Generate complete GEO optimization for a website
-     *
-     * @param array $businessData Business information
-     * @return array Complete optimization package
-     */
-    public function optimize(array $businessData): array
-    {
-        $this->validateBusinessData($businessData);
-
-        return [
-            'llms_txt' => $this->generateLLMSTxt($businessData),
-            'structured_data' => $this->generateStructuredData($businessData),
-            'meta_optimization' => $this->optimizeMeta($businessData),
-            'content_structure' => $this->optimizeContent($businessData),
-            'components' => $this->generateComponents($businessData)
-        ];
-    }
-
-    /**
-     * Generate llms.txt file content
-     *
-     * @param array $businessData Business information
-     * @return string llms.txt content
+     * Generate llms.txt file for AI search engines
      */
     public function generateLLMSTxt(array $businessData): string
     {
@@ -66,122 +39,120 @@ class GEOOptimizer
     }
 
     /**
-     * Generate structured data markup
-     *
-     * @param array $businessData Business information
-     * @param string $type Schema type (LocalBusiness, Organization, etc.)
-     * @return string JSON-LD structured data
+     * Generate structured data schema
      */
-    public function generateStructuredData(array $businessData, string $type = 'LocalBusiness'): string
+    public function generateSchema(string $type, array $data): array
     {
-        return $this->schemaGenerator->generate($type, $businessData);
+        return $this->schemaGenerator->generate($type, $data);
     }
 
     /**
-     * Optimize content structure for AI
-     *
-     * @param array $contentData Content information
-     * @return array Optimized content structure
+     * Analyze content for GEO optimization
      */
-    public function optimizeContent(array $contentData): array
+    public function analyzeContent(string $content, array $options = []): array
     {
-        return $this->contentOptimizer->optimize($contentData);
+        return $this->contentAnalyzer->analyze($content, $options);
     }
 
     /**
-     * Generate AI-optimized meta tags
-     *
-     * @param array $pageData Page information
-     * @return array Meta tag data
+     * Get industry-specific template
      */
-    public function optimizeMeta(array $pageData): array
+    public function getIndustryTemplate(string $industry): string
     {
-        return $this->metaOptimizer->optimize($pageData);
+        return $this->templateManager->getTemplate($industry);
     }
 
     /**
-     * Generate Bootstrap components optimized for GEO
-     *
-     * @param array $businessData Business information
-     * @return array Component HTML
+     * Track citations across AI platforms
      */
-    public function generateComponents(array $businessData): array
+    public function trackCitations(string $businessName, array $platforms = []): array
     {
-        $components = [];
-
-        if (isset($businessData['services'])) {
-            $components['service_cards'] = ServiceCard::generate($businessData['services']);
-        }
-
-        if (isset($businessData['faqs'])) {
-            $components['faq_section'] = FAQSection::generate($businessData['faqs']);
-        }
-
-        return $components;
+        return $this->citationTracker->track($businessName, $platforms);
     }
 
     /**
-     * Validate business data structure
-     *
-     * @param array $businessData
-     * @throws GEOException
+     * Perform complete GEO optimization
      */
-    private function validateBusinessData(array $businessData): void
+    public function optimize(array $data): array
     {
-        $required = ['name', 'description', 'industry'];
-        
-        foreach ($required as $field) {
-            if (!isset($businessData[$field]) || empty($businessData[$field])) {
-                throw new GEOException("Required field '{$field}' is missing or empty");
+        $results = [];
+
+        try {
+            // Generate llms.txt
+            $results['llms_txt'] = $this->generateLLMSTxt($data);
+
+            // Generate structured data
+            $results['schema'] = $this->generateSchema($data['business_type'] ?? 'LocalBusiness', $data);
+
+            // Analyze existing content
+            if (isset($data['content'])) {
+                $results['content_analysis'] = $this->analyzeContent($data['content']);
             }
+
+            // Get industry template
+            if (isset($data['industry'])) {
+                $results['template'] = $this->getIndustryTemplate($data['industry']);
+            }
+
+            $results['status'] = 'success';
+            $results['timestamp'] = date('c');
+
+        } catch (\Exception $e) {
+            throw new GEOException('Optimization failed: ' . $e->getMessage(), 0, $e);
         }
+
+        return $results;
     }
 
-    /**
-     * Initialize library components
-     */
     private function initializeComponents(): void
     {
-        $this->llmsTxtGenerator = new LLMSTxtGenerator($this->config);
-        $this->schemaGenerator = new SchemaGenerator($this->config);
-        $this->contentOptimizer = new AIContentStructure($this->config);
-        $this->metaOptimizer = new MetaOptimizer($this->config);
+        $this->llmsTxtGenerator = new Generator($this->config['templates_path'] ?? null);
+        $this->schemaGenerator = new SchemaGenerator();
+        $this->contentAnalyzer = new ContentAnalyzer($this->config['analysis'] ?? []);
+        $this->templateManager = new IndustryTemplateManager();
+        $this->citationTracker = new CitationTracker($this->config['tracking'] ?? []);
     }
 
-    /**
-     * Get default configuration
-     *
-     * @return array Default config
-     */
     private function getDefaultConfig(): array
     {
         return [
-            'templates_path' => __DIR__ . '/Templates',
+            'templates_path' => __DIR__ . '/LLMSTxt/Templates',
             'cache_enabled' => true,
             'cache_ttl' => 3600,
-            'validation_strict' => true,
-            'output_format' => 'html5',
-            'schema_version' => '13.0'
+            'analysis' => [
+                'min_word_count' => 300,
+                'target_keyword_density' => 0.02,
+                'enable_readability' => true
+            ],
+            'tracking' => [
+                'platforms' => ['chatgpt', 'claude', 'perplexity', 'google_ai'],
+                'check_interval' => 24 // hours
+            ]
         ];
     }
 
     /**
-     * Get library version
-     *
-     * @return string Version number
-     */
-    public function getVersion(): string
-    {
-        return '1.0.0';
-    }
-
-    /**
-     * Get configuration
-     *
-     * @return array Current configuration
+     * Get current configuration
      */
     public function getConfig(): array
     {
         return $this->config;
+    }
+
+    /**
+     * Update configuration
+     */
+    public function setConfig(array $config): void
+    {
+        $this->config = array_merge($this->config, $config);
+        $this->initializeComponents();
+    }
+
+    /**
+     * Get version information
+     */
+    public function getVersion(): string
+    {
+        return '1.0.0';
     }
 }
