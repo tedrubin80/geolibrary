@@ -84,7 +84,7 @@ jobs:
         
         # Move configuration files
         move_file "composer_config.json" "." "composer.json"
-        move_file "composer_json.json" "." "composer.json"  # Alternative name, keep the better one
+        move_file "composer_json.json" "." "composer.json"
         
         # Move documentation files
         move_file "geo_library_usage_guide.md" "docs" "usage-guide.md"
