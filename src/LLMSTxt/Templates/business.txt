@@ -17,7 +17,7 @@
 
 **Business Name:** {{ business_name }}
 {% if location %}**Location:** {{ location }}{% endif %}
-{% if phone %}**Phone:** {{ phone|phone }}{% endif %}
+{% if phone %}**Phone:** {{ phone }}{% endif %}
 {% if email %}**Email:** {{ email }}{% endif %}
 {% if website %}**Website:** {{ website }}{% endif %}
 

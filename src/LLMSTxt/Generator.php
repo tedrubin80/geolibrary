@@ -173,7 +173,8 @@ class Generator
 
         $this->twig = new Environment($loader, [
             'cache' => $cacheConfig,
-            'auto_reload' => true
+            'auto_reload' => true,
+            'autoescape' => false // Disable auto-escaping for text output
         ]);
     }
 

@@ -26,8 +26,12 @@ class IndustryTemplateManager
     public function getTemplate(string $industry): array
     {
         $industry = strtolower($industry);
-        
+
         if (!isset($this->templates[$industry])) {
+            // Fallback to business template for unknown industries
+            if (isset($this->templates['business'])) {
+                return $this->templates['business'];
+            }
             throw new ValidationException("Template not found for industry: {$industry}");
         }
 
@@ -214,6 +218,9 @@ class IndustryTemplateManager
         $this->templates['fitness'] = $this->getCondensedTemplate('ExerciseGym');
         $this->templates['beauty'] = $this->getCondensedTemplate('BeautySalon');
         $this->templates['technology'] = $this->getCondensedTemplate('LocalBusiness');
+
+        // Add a generic business template as fallback
+        $this->templates['business'] = $this->getCondensedTemplate('LocalBusiness');
     }
 
     /**

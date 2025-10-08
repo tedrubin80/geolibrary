@@ -42,6 +42,23 @@ class CitationTracker
     }
 
     /**
+     * Track citations for a business name across platforms
+     *
+     * @param array<string> $platforms
+     * @return array<string, mixed>
+     */
+    public function track(string $businessName, array $platforms = []): array
+    {
+        // Convert business name to domain-like format for compatibility
+        // Remove special characters and spaces
+        $domain = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', $businessName)));
+        if (empty($domain)) {
+            $domain = 'example.com'; // Fallback for edge cases
+        }
+        return $this->trackDomain($domain);
+    }
+
+    /**
      * Track citations for a domain
      *
      * @return array<string, mixed>

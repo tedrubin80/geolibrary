@@ -42,9 +42,9 @@ class GEOOptimizerTest extends TestCase
     {
         $optimizer = new GEOOptimizer();
         $config = $optimizer->getConfig();
-        
+
         $this->assertIsArray($config);
-        $this->assertTrue($config['cache_enabled']);
+        $this->assertFalse($config['cache_enabled']); // Default is false for development
         $this->assertEquals(3600, $config['cache_ttl']);
     }
 

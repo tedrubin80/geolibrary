@@ -65,9 +65,18 @@ class ContentAnalyzer
 
         // Calculate overall score
         $analysis['overall_score'] = $this->calculateOverallScore($analysis);
-        
+        $analysis['geo_score'] = $analysis['overall_score']; // Add geo_score for backwards compatibility
+
+        // Add some additional useful metrics
+        $analysis['word_count'] = str_word_count($content);
+        $analysis['readability_score'] = $analysis['readability']['score'];
+        $analysis['authority_score'] = $analysis['authority_signals']['score'];
+        $analysis['structure_score'] = $analysis['structure_quality']['score'];
+        $analysis['keyword_density'] = $this->calculateKeywordDensity($content);
+
         // Generate improvement suggestions
         $analysis['improvements'] = $this->generateImprovements($analysis, $content);
+        $analysis['recommendations'] = $analysis['improvements']; // Alias for compatibility
 
         return $analysis;
     }
@@ -556,5 +565,26 @@ class ContentAnalyzer
         ];
 
         return array_merge($common, $specific[$businessType] ?? []);
+    }
+
+    /**
+     * Calculate keyword density
+     *
+     * @return float Keyword density ratio
+     */
+    private function calculateKeywordDensity(string $content): float
+    {
+        $wordCount = str_word_count($content);
+        if ($wordCount === 0) {
+            return 0.0;
+        }
+
+        // Count occurrences of authority keywords
+        $keywordCount = 0;
+        foreach ($this->authorityKeywords as $keyword) {
+            $keywordCount += substr_count(strtolower($content), strtolower($keyword));
+        }
+
+        return $keywordCount / $wordCount;
     }
 }

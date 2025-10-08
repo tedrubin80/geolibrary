@@ -40,6 +40,11 @@ class GEOOptimizer
      */
     public function generateLLMSTxt(array $businessData): string
     {
+        // Map common field names to expected format
+        if (isset($businessData['business_name']) && !isset($businessData['name'])) {
+            $businessData['name'] = $businessData['business_name'];
+        }
+
         if ($this->config['cache_enabled'] ?? false) {
             $cacheKey = CacheManager::createKey('llms_txt', $businessData);
 
@@ -79,11 +84,11 @@ class GEOOptimizer
             ]);
 
             return CacheManager::remember($cacheKey, function() use ($content, $options) {
-                return $this->contentAnalyzer->analyze($content, $options);
+                return $this->contentAnalyzer->analyzeForGEO($content, $options);
             }, $this->config['cache_ttl'] ?? 1800);
         }
 
-        return $this->contentAnalyzer->analyze($content, $options);
+        return $this->contentAnalyzer->analyzeForGEO($content, $options);
     }
 
     /**
@@ -91,7 +96,14 @@ class GEOOptimizer
      */
     public function getIndustryTemplate(string $industry): string
     {
-        return $this->templateManager->getTemplate($industry);
+        try {
+            $templateData = $this->templateManager->getTemplate($industry);
+        } catch (\Exception $e) {
+            // Fallback to business template for unknown industries
+            $templateData = $this->templateManager->getTemplate('business');
+        }
+        // Return the llms_template content as a string
+        return $templateData['llms_template'] ?? $templateData['description'] ?? '';
     }
 
     /**
@@ -136,6 +148,32 @@ class GEOOptimizer
         return $results;
     }
 
+    /**
+     * Get current configuration
+     */
+    public function getConfig(): array
+    {
+        return $this->config;
+    }
+
+    /**
+     * Set configuration
+     */
+    public function setConfig(array $config): void
+    {
+        $this->config = array_merge($this->config, $config);
+        // Reinitialize components with new config
+        $this->initializeComponents();
+    }
+
+    /**
+     * Get library version
+     */
+    public function getVersion(): string
+    {
+        return '1.0.0';
+    }
+
     private function initializeComponents(): void
     {
         $this->llmsTxtGenerator = new Generator($this->config);
@@ -169,28 +207,4 @@ class GEOOptimizer
         ];
     }
 
-    /**
-     * Get current configuration
-     */
-    public function getConfig(): array
-    {
-        return $this->config;
-    }
-
-    /**
-     * Update configuration
-     */
-    public function setConfig(array $config): void
-    {
-        $this->config = array_merge($this->config, $config);
-        $this->initializeComponents();
-    }
-
-    /**
-     * Get version information
-     */
-    public function getVersion(): string
-    {
-        return '1.0.0';
-    }
 }

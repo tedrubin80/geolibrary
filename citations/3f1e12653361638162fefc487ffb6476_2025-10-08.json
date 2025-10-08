@@ -1,0 +1,60 @@
+{
+    "domain": "joes-pizza",
+    "timestamp": 1759946531,
+    "sources": {
+        "search_engines": {
+            "count": 22,
+            "sources": [
+                "Google AI Overviews",
+                "Bing Chat",
+                "Perplexity"
+            ],
+            "sample_queries": [
+                "best services in [location]",
+                "how to [service related query]",
+                "[business type] near me"
+            ],
+            "last_checked": 1759946531
+        },
+        "ai_assistants": {
+            "count": 3,
+            "platforms": [
+                "ChatGPT",
+                "Claude",
+                "Gemini"
+            ],
+            "citation_types": [
+                "direct_reference",
+                "indirect_mention",
+                "source_link"
+            ],
+            "confidence_score": 71,
+            "last_checked": 1759946531
+        },
+        "social_mentions": {
+            "count": 2,
+            "platforms": [
+                "Twitter",
+                "LinkedIn",
+                "Reddit"
+            ],
+            "sentiment": "positive",
+            "last_checked": 1759946531
+        },
+        "news_citations": {
+            "count": 5,
+            "sources": [
+                "Local news",
+                "Industry publications"
+            ],
+            "topics": [
+                "business feature",
+                "expert quote"
+            ],
+            "last_checked": 1759946531
+        }
+    },
+    "total_citations": 32,
+    "new_citations": 3,
+    "trending_topics": []
+}
