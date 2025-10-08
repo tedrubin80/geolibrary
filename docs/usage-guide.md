@@ -5,17 +5,20 @@
 2. [Installation](#installation)
 3. [Basic Usage](#basic-usage)
 4. [Core Features](#core-features)
-5. [Real-World Examples](#real-world-examples)
-6. [Integration Guides](#integration-guides)
-7. [Advanced Usage](#advanced-usage)
-8. [Troubleshooting](#troubleshooting)
+5. [Schema Types](#schema-types)
+6. [Caching System](#caching-system)
+7. [GEO Readiness Score](#geo-readiness-score)
+8. [Real-World Examples](#real-world-examples)
+9. [Integration Guides](#integration-guides)
+10. [Advanced Usage](#advanced-usage)
+11. [Troubleshooting](#troubleshooting)
 
 ## Quick Start
 
 ### 30-Second Setup
 ```bash
 # Install via Composer
-composer require yourname/php-geo-optimizer
+composer require geooptimizer/php-geo-optimizer
 
 # Basic usage
 <?php
@@ -25,40 +28,42 @@ use GEOOptimizer\GEOOptimizer;
 
 $geo = new GEOOptimizer();
 $result = $geo->optimize([
-    'name' => 'Your Business Name',
+    'business_name' => 'Your Business Name',
     'description' => 'What your business does',
-    'industry' => 'Your Industry'
+    'industry' => 'restaurant'  // or any supported industry
 ]);
 
 // Generate llms.txt file
 file_put_contents('public/llms.txt', $result['llms_txt']);
-echo $result['structured_data']; // Add to your HTML <head>
+
+// Add structured data to your HTML
+echo '<script type="application/ld+json">' . json_encode($result['schema']) . '</script>';
 ```
 
 ## Installation
 
 ### Via Composer (Recommended)
 ```bash
-composer require yourname/php-geo-optimizer
+composer require geooptimizer/php-geo-optimizer
 ```
 
 ### Manual Installation
-1. Download the library from GitHub
-2. Include the autoloader:
-```php
-require_once 'path/to/geo-optimizer/vendor/autoload.php';
+1. Clone the repository:
+```bash
+git clone https://github.com/tedrubin80/geolibrary.git
+cd geolibrary
+composer install
 ```
 
-### Requirements
-- PHP 7.4 or higher
-- Composer
-- Web server with write permissions (for llms.txt generation)
+2. Include the autoloader in your project:
+```php
+require_once 'path/to/geolibrary/vendor/autoload.php';
+```
 
 ## Basic Usage
 
-### Step 1: Initialize the Library
+### Initialize the Library
 ```php
-<?php
 use GEOOptimizer\GEOOptimizer;
 
 // Basic initialization
@@ -67,572 +72,791 @@ $geo = new GEOOptimizer();
 // With custom configuration
 $geo = new GEOOptimizer([
     'cache_enabled' => true,
-    'validation_strict' => true,
-    'templates_path' => '/custom/templates'
+    'cache_ttl' => 7200,
+    'cache' => [
+        'adapter' => 'file',  // or 'redis', 'memory', 'null'
+        'path' => '/tmp/geo_cache'
+    ]
 ]);
 ```
 
-### Step 2: Prepare Your Business Data
+### Generate llms.txt File
 ```php
-$businessData = [
-    // Required fields
-    'name' => 'Springfield Web Solutions',
-    'description' => 'Professional web development services in Springfield, IL',
-    'industry' => 'Web Development',
-    
-    // Optional but recommended
-    'location' => 'Springfield, Illinois',
-    'founded' => '2020',
-    'website' => 'https://example.com',
-    'phone' => '(217) 555-0123',
-    'email' => 'info@example.com'
-];
-```
+$llmsTxt = $geo->generateLLMSTxt([
+    'business_name' => 'Joe\'s Pizza Palace',
+    'description' => 'Family-owned pizzeria serving authentic Italian pizza since 1985',
+    'industry' => 'restaurant',
+    'location' => 'New York, NY',
+    'services' => ['Dine-in', 'Takeout', 'Delivery'],
+    'specialties' => ['Wood-fired pizza', 'Homemade pasta', 'Tiramisu']
+]);
 
-### Step 3: Generate Optimizations
-```php
-// Generate all optimizations at once
-$results = $geo->optimize($businessData);
-
-// Or generate specific components
-$llmsTxt = $geo->generateLLMSTxt($businessData);
-$structuredData = $geo->generateStructuredData($businessData);
-$metaTags = $geo->optimizeMeta($businessData);
+file_put_contents('public/llms.txt', $llmsTxt);
 ```
 
 ## Core Features
 
 ### 1. LLMs.txt Generation
+Creates AI-optimized text files that help AI systems understand your business:
 
-#### Basic llms.txt
 ```php
+use GEOOptimizer\LLMSTxt\Generator;
+
+$generator = new Generator();
+
 $businessData = [
-    'name' => 'Acme Plumbing',
-    'description' => 'Emergency plumbing services in downtown Chicago',
-    'industry' => 'Plumbing Services',
-    'location' => 'Chicago, Illinois',
-    'services' => [
-        'Emergency Plumbing',
-        'Drain Cleaning',
-        'Water Heater Repair',
-        'Pipe Installation'
-    ],
-    'certifications' => [
-        'Licensed Illinois Plumber',
-        'EPA Certified',
-        'BBB A+ Rating'
-    ]
+    'name' => 'Tech Solutions Inc',
+    'description' => 'Leading provider of cloud infrastructure solutions',
+    'industry' => 'technology',
+    'services' => ['Cloud Migration', 'DevOps Consulting', 'Security Audits'],
+    'established' => '2010',
+    'team_size' => '50-100'
 ];
 
-// Generate and save llms.txt
-$geo = new GEOOptimizer();
-$llmsTxt = $geo->generateLLMSTxt($businessData);
-file_put_contents('public/llms.txt', $llmsTxt);
-```
-
-#### Using Different Templates
-```php
-// E-commerce template
-$llmsTxt = $geo->generateLLMSTxt($businessData, 'ecommerce');
-
-// Service business template
-$llmsTxt = $geo->generateLLMSTxt($businessData, 'service');
-
-// Professional services template
-$llmsTxt = $geo->generateLLMSTxt($businessData, 'professional');
+$llmsTxt = $generator->generate($businessData, 'professional');
+$generator->save($businessData, 'public/llms.txt');
 ```
 
 ### 2. Structured Data Generation
+Generate rich Schema.org markup for better AI understanding:
 
-#### Local Business Schema
 ```php
-$businessData = [
-    'name' => 'Joe\'s Pizza',
-    'description' => 'Authentic New York style pizza',
+use GEOOptimizer\StructuredData\SchemaGenerator;
+
+$schemaGen = new SchemaGenerator();
+
+// Generate business schema
+$schema = $schemaGen->generate('LocalBusiness', [
+    'business_name' => 'Downtown Auto Repair',
+    'description' => 'Expert auto repair and maintenance services',
+    'phone' => '555-0123',
     'address' => [
-        'street' => '123 Main Street',
+        'street_address' => '123 Main St',
         'city' => 'Springfield',
-        'state' => 'Illinois',
-        'zip' => '62701'
+        'state' => 'IL',
+        'postal_code' => '62701'
     ],
     'hours' => [
-        'Monday' => '11:00-22:00',
-        'Tuesday' => '11:00-22:00',
-        'Wednesday' => '11:00-22:00',
-        'Thursday' => '11:00-22:00',
-        'Friday' => '11:00-23:00',
-        'Saturday' => '11:00-23:00',
-        'Sunday' => '12:00-21:00'
-    ],
-    'rating' => [
-        'value' => 4.5,
-        'count' => 127
+        'Mon-Fri' => '8:00 AM - 6:00 PM',
+        'Sat' => '9:00 AM - 3:00 PM',
+        'Sun' => 'Closed'
     ]
-];
+]);
 
-$structuredData = $geo->generateStructuredData($businessData, 'LocalBusiness');
-
-// Add to your HTML head
-echo $structuredData;
+// Convert to JSON-LD
+$jsonLd = $schemaGen->toJsonLd($schema);
 ```
 
-#### FAQ Schema
+### 3. Content Analysis
+Analyze your content for AI optimization:
+
 ```php
-$faqData = [
-    'faqs' => [
+use GEOOptimizer\Analysis\ContentAnalyzer;
+
+$analyzer = new ContentAnalyzer();
+
+$content = "Your website content here...";
+$analysis = $analyzer->analyzeForGEO($content);
+
+// Results include:
+// - Readability score
+// - Authority signals
+// - Keyword density
+// - Content structure
+// - Recommendations
+```
+
+### 4. GEO Readiness Score
+Evaluate how well-optimized your site is for AI discovery:
+
+```php
+use GEOOptimizer\Analytics\GEOReadinessScore;
+
+$scoreCalculator = new GEOReadinessScore();
+
+$score = $scoreCalculator->calculate([
+    'has_llms_txt' => true,
+    'has_schema' => true,
+    'schema_types' => ['LocalBusiness', 'FAQ', 'HowTo'],
+    'content' => $yourContent,
+    'mobile_friendly' => true,
+    'https' => true,
+    'has_reviews' => true,
+    'average_rating' => 4.5,
+    'last_updated' => '2025-01-01'
+]);
+
+// Returns:
+// - overall_score: 0-100
+// - grade: A+, A, B, etc.
+// - recommendations: Array of actionable items
+// - strengths: What you're doing well
+// - weaknesses: Areas for improvement
+```
+
+## Schema Types
+
+### Supported Business Types
+The library now supports 11+ schema types:
+
+1. **LocalBusiness** - General business schema
+2. **Restaurant** - Food service establishments
+3. **LegalService** - Law firms and legal professionals
+4. **MedicalBusiness** - Healthcare providers
+5. **AutoRepair** - Auto service centers
+6. **HomeAndConstructionBusiness** - Contractors and home services
+7. **Store** - Retail establishments
+8. **RealEstateAgent** - Real estate professionals
+9. **HealthAndBeautyBusiness** - Salons, spas, fitness centers
+10. **EducationalOrganization** - Schools and training centers
+11. **ProfessionalService** - Consultants and B2B services
+
+### Critical Schema Types for AI
+
+#### HowTo Schema
+Perfect for instructional content:
+```php
+$howTo = $schemaGen->generateHowTo([
+    'title' => 'How to Change Your Oil',
+    'description' => 'Step-by-step guide to changing your car oil',
+    'time_required' => 'PT30M',  // 30 minutes
+    'difficulty' => 'Beginner',
+    'supplies' => [
+        ['name' => 'Motor oil', 'quantity' => '5 quarts'],
+        ['name' => 'Oil filter', 'quantity' => '1']
+    ],
+    'tools' => ['Oil pan', 'Wrench set', 'Funnel'],
+    'steps' => [
+        ['text' => 'Warm up the engine for 2-3 minutes'],
+        ['text' => 'Jack up the car safely'],
+        ['text' => 'Drain the old oil'],
+        ['text' => 'Replace the oil filter'],
+        ['text' => 'Add new oil']
+    ]
+]);
+```
+
+#### Product Schema
+For e-commerce and product listings:
+```php
+$product = $schemaGen->generateProduct([
+    'name' => 'Professional Coffee Maker',
+    'description' => 'High-end espresso machine for home use',
+    'brand' => 'BrewMaster',
+    'sku' => 'BM-ESP-3000',
+    'offers' => [
         [
-            'question' => 'What are your business hours?',
-            'answer' => 'We are open Monday through Friday 9am to 5pm, and weekends by appointment.'
-        ],
+            'price' => 899.99,
+            'currency' => 'USD',
+            'availability' => 'InStock',
+            'seller' => 'Coffee Equipment Co'
+        ]
+    ],
+    'rating' => [
+        'value' => 4.8,
+        'count' => 234
+    ]
+]);
+```
+
+#### BreadcrumbList Schema
+Helps AI understand site structure:
+```php
+$breadcrumbs = $schemaGen->generateBreadcrumbList([
+    ['name' => 'Home', 'url' => 'https://example.com'],
+    ['name' => 'Products', 'url' => 'https://example.com/products'],
+    ['name' => 'Coffee Makers', 'url' => 'https://example.com/products/coffee-makers']
+]);
+```
+
+#### Review Schema
+Add social proof:
+```php
+$review = $schemaGen->generateReview([
+    'item_name' => 'Downtown Pizza',
+    'review_body' => 'Best pizza in town! The crust is perfect.',
+    'rating' => 5,
+    'author' => ['name' => 'John Smith'],
+    'date_published' => '2025-01-15'
+]);
+```
+
+## Caching System
+
+### Enable Caching
+The library includes a sophisticated caching system to improve performance:
+
+```php
+$geo = new GEOOptimizer([
+    'cache_enabled' => true,
+    'cache' => [
+        'adapter' => 'file',  // Choose: 'file', 'redis', 'memory', 'null'
+        'path' => '/tmp/geo_cache',
+        'ttl' => 3600  // 1 hour default
+    ]
+]);
+```
+
+### Cache Adapters
+
+#### File Cache (Default)
+Best for development and small deployments:
+```php
+'cache' => [
+    'adapter' => 'file',
+    'path' => '/var/cache/geo',
+    'prefix' => 'geo_'
+]
+```
+
+#### Redis Cache
+High-performance for production:
+```php
+'cache' => [
+    'adapter' => 'redis',
+    'host' => '127.0.0.1',
+    'port' => 6379,
+    'password' => 'your-password',
+    'database' => 0
+]
+```
+
+#### Memory Cache
+In-request caching only:
+```php
+'cache' => [
+    'adapter' => 'memory'
+]
+```
+
+### Manual Cache Control
+```php
+use GEOOptimizer\Cache\CacheManager;
+
+// Clear all cache
+$cache = CacheManager::getInstance();
+$cache->clear();
+
+// Remove specific cache entry
+$cache->delete('schema_Restaurant_hash');
+
+// Check if cached
+if ($cache->has('llms_txt_hash')) {
+    $cached = $cache->get('llms_txt_hash');
+}
+```
+
+## GEO Readiness Score
+
+### Complete Assessment
+Get a comprehensive evaluation of your GEO optimization:
+
+```php
+use GEOOptimizer\Analytics\GEOReadinessScore;
+
+$scorer = new GEOReadinessScore();
+
+$assessment = $scorer->calculate([
+    // Content signals
+    'has_llms_txt' => true,
+    'content' => $yourPageContent,
+
+    // Structured data
+    'has_schema' => true,
+    'schema_types' => ['LocalBusiness', 'FAQ', 'Review'],
+    'schema_properties' => 25,
+
+    // Authority signals
+    'verified_business' => true,
+    'has_reviews' => true,
+    'average_rating' => 4.7,
+    'external_citations' => ['wikipedia.org', 'industry-site.com'],
+    'certifications' => ['ISO 9001', 'BBB Accredited'],
+
+    // Technical optimization
+    'mobile_friendly' => true,
+    'page_speed_score' => 85,
+    'https' => true,
+    'has_sitemap' => true,
+    'has_robots_txt' => true,
+
+    // Content freshness
+    'last_updated' => '2025-01-15',
+    'update_frequency' => 'regular',
+
+    // Comprehensiveness
+    'has_faq' => true,
+    'has_howto' => true,
+    'content_formats' => ['text', 'images', 'videos'],
+    'detailed_descriptions' => true,
+
+    // Citation potential
+    'unique_content' => true,
+    'has_statistics' => true,
+    'original_research' => false,
+    'expert_quotes' => true
+]);
+
+// Use the results
+echo "GEO Score: " . $assessment['overall_score'] . "/100\n";
+echo "Grade: " . $assessment['grade'] . "\n";
+echo "AI Readiness: " . $assessment['ai_readiness_level'] . "\n";
+
+// Display recommendations
+foreach ($assessment['recommendations'] as $recommendation) {
+    echo "- $recommendation\n";
+}
+```
+
+### Score Interpretation
+- **90-100 (A+)**: Excellent - Highly optimized for AI discovery
+- **80-89 (A)**: Very Good - Well-positioned for AI citations
+- **70-79 (B)**: Good - Solid foundation with room for improvement
+- **60-69 (C)**: Fair - Some optimization needed
+- **50-59 (D)**: Poor - Significant improvements required
+- **Below 50 (F)**: Critical - Urgent optimization needed
+
+## Real-World Examples
+
+### Restaurant Implementation
+```php
+$geo = new GEOOptimizer(['cache_enabled' => true]);
+
+// Restaurant data
+$restaurantData = [
+    'business_name' => 'Bella Italia Ristorante',
+    'business_type' => 'Restaurant',
+    'description' => 'Authentic Italian cuisine in the heart of downtown',
+    'cuisine_type' => 'Italian',
+    'phone' => '(555) 123-4567',
+    'email' => 'info@bellaitalia.com',
+    'website' => 'https://bellaitalia.com',
+    'menu_url' => 'https://bellaitalia.com/menu',
+    'street_address' => '789 Pasta Lane',
+    'city' => 'Chicago',
+    'state' => 'IL',
+    'postal_code' => '60601',
+    'country' => 'US',
+    'latitude' => 41.8781,
+    'longitude' => -87.6298,
+    'price_range' => '$$',
+    'services' => ['Dine-in', 'Takeout', 'Delivery', 'Catering'],
+    'payment_methods' => ['Cash', 'Credit Cards', 'Mobile Payments'],
+    'hours' => [
+        'Monday' => '11:00 AM - 10:00 PM',
+        'Tuesday' => '11:00 AM - 10:00 PM',
+        'Wednesday' => '11:00 AM - 10:00 PM',
+        'Thursday' => '11:00 AM - 11:00 PM',
+        'Friday' => '11:00 AM - 12:00 AM',
+        'Saturday' => '10:00 AM - 12:00 AM',
+        'Sunday' => '10:00 AM - 9:00 PM'
+    ],
+    'dietary_options' => ['Vegetarian', 'Vegan', 'Gluten-Free'],
+    'delivery' => true,
+    'takeout' => true
+];
+
+// Generate everything
+$result = $geo->optimize($restaurantData);
+
+// Output files
+file_put_contents('public/llms.txt', $result['llms_txt']);
+file_put_contents('includes/schema.json', json_encode($result['schema']));
+```
+
+### E-commerce Product Page
+```php
+// Product optimization
+$productData = [
+    'name' => 'Smart Home Security Camera',
+    'description' => 'AI-powered security camera with night vision',
+    'brand' => 'SecureHome',
+    'sku' => 'SH-CAM-001',
+    'category' => 'Electronics > Security > Cameras',
+    'images' => [
+        'https://example.com/images/camera-front.jpg',
+        'https://example.com/images/camera-side.jpg'
+    ],
+    'offers' => [
         [
-            'question' => 'Do you offer emergency services?',
-            'answer' => 'Yes, we provide 24/7 emergency services for urgent issues.'
-        ],
+            'price' => 199.99,
+            'currency' => 'USD',
+            'availability' => 'InStock',
+            'seller' => 'TechStore Online',
+            'url' => 'https://example.com/products/smart-camera',
+            'valid_from' => '2025-01-01',
+            'valid_through' => '2025-12-31'
+        ]
+    ],
+    'specifications' => [
+        'Resolution' => '4K Ultra HD',
+        'Night Vision' => 'Up to 30 feet',
+        'Storage' => 'Cloud & Local',
+        'Power' => 'Wired/Battery',
+        'Weather Resistant' => 'IP65'
+    ],
+    'rating' => [
+        'value' => 4.6,
+        'count' => 1847,
+        'best' => 5,
+        'worst' => 1
+    ],
+    'reviews' => [
         [
-            'question' => 'What areas do you serve?',
-            'answer' => 'We serve Springfield and surrounding areas within a 50-mile radius.'
+            'author' => 'Jane Doe',
+            'rating' => 5,
+            'body' => 'Excellent camera with crystal clear footage!',
+            'date' => '2025-01-10'
         ]
     ]
 ];
 
-$faqSchema = $geo->generateStructuredData($faqData, 'FAQ');
+$productSchema = $geo->generateSchema('Product', $productData);
 ```
 
-### 3. Meta Tag Optimization
+### Professional Service Website
 ```php
-$pageData = [
-    'title' => 'Professional Plumbing Services in Springfield',
-    'description' => 'Expert plumbing repairs, installations, and emergency services in Springfield, IL. Licensed, insured, and available 24/7.',
-    'keywords' => ['plumbing', 'Springfield', 'emergency', 'repair'],
-    'page_type' => 'service'
-];
-
-$metaTags = $geo->optimizeMeta($pageData);
-
-// Output optimized meta tags
-foreach ($metaTags as $tag => $content) {
-    echo "<meta name=\"{$tag}\" content=\"{$content}\">\n";
-}
-```
-
-### 4. Bootstrap Components
-
-#### Service Cards
-```php
-$services = [
-    [
-        'name' => 'Website Design',
-        'description' => 'Custom responsive websites that convert visitors to customers',
-        'category' => 'Design',
-        'price' => 1500
-    ],
-    [
-        'name' => 'SEO Optimization',
-        'description' => 'Improve your search rankings and drive organic traffic',
-        'category' => 'Marketing',
-        'price' => 800
-    ]
-];
-
-$components = $geo->generateComponents(['services' => $services]);
-echo $components['service_cards'];
-```
-
-#### FAQ Section
-```php
-$faqs = [
-    [
-        'question' => 'How long does a typical project take?',
-        'answer' => 'Most websites are completed within 2-4 weeks, depending on complexity.'
-    ],
-    [
-        'question' => 'Do you provide ongoing support?',
-        'answer' => 'Yes, we offer maintenance packages and ongoing support for all our clients.'
-    ]
-];
-
-$components = $geo->generateComponents(['faqs' => $faqs]);
-echo $components['faq_section'];
-```
-
-## Real-World Examples
-
-### Example 1: Restaurant Website
-```php
-<?php
-require_once 'vendor/autoload.php';
-use GEOOptimizer\GEOOptimizer;
-
-$restaurantData = [
-    'name' => 'Mario\'s Italian Kitchen',
-    'description' => 'Authentic Italian cuisine in the heart of downtown Springfield',
-    'industry' => 'Restaurant',
-    'location' => 'Springfield, Illinois',
-    'founded' => '1995',
-    'website' => 'https://mariositalian.com',
-    'phone' => '(217) 555-MARIO',
-    'email' => 'info@mariositalian.com',
-    
-    'address' => [
-        'street' => '456 Capitol Avenue',
-        'city' => 'Springfield',
-        'state' => 'Illinois',
-        'zip' => '62701'
-    ],
-    
-    'services' => [
-        'Dine-in',
-        'Takeout',
-        'Catering',
-        'Private Events'
-    ],
-    
-    'specialties' => [
-        'Homemade Pasta',
-        'Wood-fired Pizza',
-        'Traditional Italian Desserts'
-    ],
-    
-    'hours' => [
-        'Monday' => 'Closed',
-        'Tuesday' => '11:00-21:00',
-        'Wednesday' => '11:00-21:00',
-        'Thursday' => '11:00-21:00',
-        'Friday' => '11:00-22:00',
-        'Saturday' => '11:00-22:00',
-        'Sunday' => '12:00-20:00'
-    ],
-    
-    'certifications' => [
-        'ServSafe Certified',
-        'Local Business of the Year 2023'
-    ],
-    
-    'rating' => [
-        'value' => 4.7,
-        'count' => 284
-    ]
-];
-
-$geo = new GEOOptimizer();
-$results = $geo->optimize($restaurantData);
-
-// Save llms.txt
-file_put_contents('public/llms.txt', $results['llms_txt']);
-
-// Output structured data in HTML head
-echo "<!DOCTYPE html>\n<html>\n<head>\n";
-echo $results['structured_data'];
-echo "</head>\n<body>\n";
-
-// Generate components
-echo $results['components']['faq_section'] ?? '';
-echo "</body>\n</html>";
-```
-
-### Example 2: Law Firm Website
-```php
+// Law firm implementation
 $lawFirmData = [
-    'name' => 'Smith & Associates Law Firm',
-    'description' => 'Experienced personal injury and family law attorneys serving Central Illinois',
-    'industry' => 'Legal Services',
-    'location' => 'Springfield, Illinois',
-    'founded' => '1985',
-    
-    'services' => [
-        'Personal Injury Law',
+    'business_name' => 'Smith & Associates Law Firm',
+    'business_type' => 'LegalService',
+    'description' => 'Experienced legal representation for personal injury and family law',
+    'practice_areas' => [
+        'Personal Injury',
         'Family Law',
+        'Estate Planning',
         'Criminal Defense',
-        'Estate Planning'
+        'Business Law'
     ],
-    
-    'specialties' => [
-        'Car Accident Claims',
-        'Divorce Proceedings',
-        'Child Custody',
-        'DUI Defense'
+    'attorneys' => [
+        ['name' => 'John Smith, Esq.', 'credentials' => 'JD, Harvard Law School'],
+        ['name' => 'Sarah Johnson, Esq.', 'credentials' => 'JD, Yale Law School']
     ],
-    
-    'certifications' => [
-        'Illinois Bar Association',
-        'American Association for Justice',
-        'Super Lawyers 2020-2023'
-    ],
-    
-    'team_size' => '12 attorneys',
-    'years_experience' => '38',
-    
-    'key_messages' => [
-        'No fee unless we win your case',
-        'Free initial consultation',
-        'Aggressive representation with personal service'
-    ]
+    'phone' => '(555) LAW-FIRM',
+    'email' => 'contact@smithlaw.com',
+    'website' => 'https://smithlaw.com',
+    'street_address' => '100 Legal Plaza',
+    'city' => 'Boston',
+    'state' => 'MA',
+    'postal_code' => '02108'
 ];
 
-$geo = new GEOOptimizer();
-$results = $geo->optimize($lawFirmData);
-```
+// Generate comprehensive optimization
+$result = $geo->optimize($lawFirmData);
 
-### Example 3: E-commerce Integration
-```php
-$ecommerceData = [
-    'name' => 'Springfield Electronics',
-    'description' => 'Quality electronics and repair services for Central Illinois',
-    'industry' => 'Electronics Retail',
-    
-    'services' => [
-        'Electronics Sales',
-        'Phone Repair',
-        'Computer Repair',
-        'Home Theater Setup'
-    ],
-    
-    'products' => [
-        'Smartphones',
-        'Laptops',
-        'Gaming Systems',
-        'Audio Equipment'
-    ]
-];
-
-// Use e-commerce template
-$geo = new GEOOptimizer();
-$llmsTxt = $geo->generateLLMSTxt($ecommerceData, 'ecommerce');
+// Also generate FAQ schema for common questions
+$faqSchema = $geo->generateSchema('FAQ', [
+    ['question' => 'How much does a consultation cost?',
+     'answer' => 'We offer free initial consultations for all personal injury cases.'],
+    ['question' => 'What types of cases do you handle?',
+     'answer' => 'We specialize in personal injury, family law, estate planning, and more.'],
+    ['question' => 'How long have you been practicing?',
+     'answer' => 'Our firm has over 30 years of combined legal experience.']
+]);
 ```
 
 ## Integration Guides
 
 ### WordPress Integration
 ```php
-// functions.php
+// In your theme's functions.php
+add_action('wp_head', 'add_geo_optimization');
+
 function add_geo_optimization() {
-    require_once get_template_directory() . '/vendor/autoload.php';
-    
-    use GEOOptimizer\GEOOptimizer;
-    
+    $geo = new GEOOptimizer();
+
+    // Get business data from WordPress options
     $businessData = [
-        'name' => get_bloginfo('name'),
+        'business_name' => get_bloginfo('name'),
         'description' => get_bloginfo('description'),
         'website' => home_url(),
-        // Add more data from WordPress options
+        // Add more data from your settings
     ];
-    
-    $geo = new GEOOptimizer();
-    $structuredData = $geo->generateStructuredData($businessData);
-    
-    echo $structuredData;
+
+    $schema = $geo->generateSchema('LocalBusiness', $businessData);
+
+    echo '<script type="application/ld+json">';
+    echo json_encode($schema);
+    echo '</script>';
 }
-add_action('wp_head', 'add_geo_optimization');
 ```
 
 ### Laravel Integration
 ```php
-// Create a service provider
-class GEOOptimizerServiceProvider extends ServiceProvider
+// In a Service Provider
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use GEOOptimizer\GEOOptimizer;
+
+class GEOServiceProvider extends ServiceProvider
 {
     public function register()
     {
         $this->app->singleton(GEOOptimizer::class, function ($app) {
-            return new GEOOptimizer(config('geo.options', []));
+            return new GEOOptimizer([
+                'cache_enabled' => config('geo.cache_enabled'),
+                'cache' => [
+                    'adapter' => 'redis',
+                    'host' => config('database.redis.default.host'),
+                    'port' => config('database.redis.default.port'),
+                    'password' => config('database.redis.default.password'),
+                ]
+            ]);
         });
     }
 }
 
-// Controller usage
-class HomeController extends Controller
+// In a controller
+public function generateLLMSTxt(GEOOptimizer $geo)
 {
-    public function index(GEOOptimizer $geo)
-    {
-        $businessData = config('business.data');
-        $geoResults = $geo->optimize($businessData);
-        
-        return view('home', compact('geoResults'));
-    }
+    $businessData = Business::first()->toArray();
+    $llmsTxt = $geo->generateLLMSTxt($businessData);
+
+    return response($llmsTxt)
+        ->header('Content-Type', 'text/plain');
 }
-```
-
-### Static Site Integration
-```php
-// build-geo.php - Run during build process
-<?php
-require_once 'vendor/autoload.php';
-use GEOOptimizer\GEOOptimizer;
-
-$businessData = json_decode(file_get_contents('data/business.json'), true);
-$geo = new GEOOptimizer();
-$results = $geo->optimize($businessData);
-
-// Generate llms.txt
-file_put_contents('dist/llms.txt', $results['llms_txt']);
-
-// Generate structured data file
-file_put_contents('dist/structured-data.json', $results['structured_data']);
-
-// Generate components
-file_put_contents('dist/components.html', implode("\n", $results['components']));
 ```
 
 ## Advanced Usage
 
 ### Custom Templates
+Create your own industry-specific templates:
+
 ```php
-// Create custom llms.txt template
-$geo = new GEOOptimizer();
-$customTemplate = "
-# {{ business_name }} - Custom Template
-# Industry: {{ industry }}
+use GEOOptimizer\LLMSTxt\Generator;
 
-## Our Expertise
-{{ specialties }}
+$generator = new Generator();
 
-## Contact
-Email: {{ email }}
-Phone: {{ phone }}
-";
+// Create custom template
+$customTemplate = <<<TEMPLATE
+# {{ business_name }}
 
-// Save custom template
-$generator = new \GEOOptimizer\LLMSTxt\Generator();
-$generator->createCustomTemplate('custom', $customTemplate);
+## About Our Services
+{{ description }}
+
+## Specializations
+{% for specialty in specialties %}
+- {{ specialty }}
+{% endfor %}
+
+## Contact Information
+- Phone: {{ phone }}
+- Email: {{ email }}
+- Address: {{ full_address }}
+
+## Business Hours
+{% for day, hours in business_hours %}
+{{ day }}: {{ hours }}
+{% endfor %}
+
+Last Updated: {{ generated_date }}
+TEMPLATE;
+
+$generator->createCustomTemplate('my-industry', $customTemplate);
 
 // Use custom template
-$llmsTxt = $geo->generateLLMSTxt($businessData, 'custom');
+$llmsTxt = $generator->generate($businessData, 'my-industry');
 ```
 
 ### Batch Processing
+Process multiple businesses or pages:
+
 ```php
-// Process multiple businesses
 $businesses = [
-    ['name' => 'Business 1', 'description' => '...'],
-    ['name' => 'Business 2', 'description' => '...'],
-    ['name' => 'Business 3', 'description' => '...']
+    ['name' => 'Business 1', 'industry' => 'restaurant', ...],
+    ['name' => 'Business 2', 'industry' => 'retail', ...],
+    ['name' => 'Business 3', 'industry' => 'medical', ...]
 ];
 
-$geo = new GEOOptimizer();
 $results = [];
-
 foreach ($businesses as $business) {
-    $results[] = $geo->optimize($business);
-}
+    $results[$business['name']] = $geo->optimize($business);
 
-// Bulk save llms.txt files
-foreach ($results as $index => $result) {
-    file_put_contents("public/business-{$index}-llms.txt", $result['llms_txt']);
+    // Save each llms.txt
+    $filename = 'output/' . slugify($business['name']) . '_llms.txt';
+    file_put_contents($filename, $results[$business['name']]['llms_txt']);
 }
 ```
 
-### Configuration Options
+### Content Analysis Pipeline
+Analyze and improve existing content:
+
 ```php
-$geo = new GEOOptimizer([
-    'cache_enabled' => true,          // Enable caching
-    'cache_ttl' => 3600,             // Cache duration
-    'validation_strict' => false,    // Relaxed validation
-    'templates_path' => '/custom',   // Custom templates
-    'output_format' => 'html5',      // Output format
-    'schema_version' => '13.0'       // Schema.org version
+use GEOOptimizer\Analysis\ContentAnalyzer;
+
+$analyzer = new ContentAnalyzer([
+    'min_word_count' => 500,
+    'target_keyword_density' => 0.025,
+    'enable_readability' => true
 ]);
+
+// Analyze existing page
+$content = file_get_contents('https://example.com/page');
+$analysis = $analyzer->analyzeForGEO($content);
+
+if ($analysis['geo_score'] < 70) {
+    echo "Content needs optimization:\n";
+    foreach ($analysis['recommendations'] as $rec) {
+        echo "- $rec\n";
+    }
+
+    // Suggest authority keywords to add
+    echo "\nConsider adding these authority signals:\n";
+    $suggestedKeywords = [
+        'industry-leading', 'certified', 'award-winning',
+        'trusted', 'established', 'proven track record'
+    ];
+
+    foreach ($suggestedKeywords as $keyword) {
+        if (stripos($content, $keyword) === false) {
+            echo "- $keyword\n";
+        }
+    }
+}
+```
+
+### Monitoring and Reporting
+Track your GEO optimization over time:
+
+```php
+use GEOOptimizer\Analytics\GEOReadinessScore;
+
+$scorer = new GEOReadinessScore();
+
+// Weekly monitoring
+$sites = [
+    'https://site1.com' => ['industry' => 'restaurant'],
+    'https://site2.com' => ['industry' => 'legal'],
+    'https://site3.com' => ['industry' => 'medical']
+];
+
+$report = [];
+foreach ($sites as $url => $data) {
+    // Fetch and analyze site data
+    $siteData = fetchSiteData($url); // Your implementation
+
+    $score = $scorer->calculate($siteData);
+
+    $report[] = [
+        'site' => $url,
+        'score' => $score['overall_score'],
+        'grade' => $score['grade'],
+        'trend' => compareWithLastWeek($url, $score['overall_score']),
+        'top_issue' => $score['recommendations'][0] ?? 'None'
+    ];
+}
+
+// Generate report
+generateReport($report); // Your reporting implementation
 ```
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### Issue: "Required field missing"
+#### 1. Cache Directory Not Writable
 ```php
-// Problem: Missing required fields
-$businessData = [
-    'name' => 'My Business'
-    // Missing 'description' and 'industry'
+// Error: Cannot create cache directory
+// Solution: Ensure directory is writable
+chmod 755 /path/to/cache
+chown www-data:www-data /path/to/cache
+```
+
+#### 2. Missing Templates
+```php
+// Error: Template not found
+// Solution: Verify templates directory
+$config = [
+    'templates_path' => __DIR__ . '/vendor/geooptimizer/templates'
 ];
+$geo = new GEOOptimizer($config);
+```
 
-// Solution: Add all required fields
-$businessData = [
-    'name' => 'My Business',
-    'description' => 'What my business does',
-    'industry' => 'My Industry'
+#### 3. Redis Connection Failed
+```php
+// Error: Redis connection failed
+// Solution: Check Redis configuration
+$config = [
+    'cache' => [
+        'adapter' => 'redis',
+        'host' => '127.0.0.1',  // Verify host
+        'port' => 6379,         // Verify port
+        'password' => null      // Add if required
+    ]
 ];
 ```
 
-#### Issue: "Template not found"
+#### 4. Schema Validation Errors
 ```php
-// Problem: Using non-existent template
-$llmsTxt = $geo->generateLLMSTxt($data, 'nonexistent');
-
-// Solution: Check available templates
-$generator = new \GEOOptimizer\LLMSTxt\Generator();
-$templates = $generator->getAvailableTemplates();
-print_r($templates);
+// Error: Invalid schema type
+// Solution: Use supported types
+$supportedTypes = $schemaGen->getSupportedTypes();
+print_r($supportedTypes);
 ```
 
-#### Issue: "Permission denied writing llms.txt"
-```bash
-# Solution: Set proper permissions
-chmod 755 public/
-chmod 644 public/llms.txt
+### Performance Optimization
+
+#### Enable Caching
+```php
+// Always enable caching in production
+$geo = new GEOOptimizer([
+    'cache_enabled' => true,
+    'cache_ttl' => 7200  // 2 hours
+]);
 ```
 
-### Debug Mode
+#### Use Redis for High Traffic
 ```php
-// Enable debug mode for troubleshooting
-$geo = new GEOOptimizer(['debug' => true]);
+// For high-traffic sites
+$config = [
+    'cache' => [
+        'adapter' => 'redis',
+        'host' => 'redis-server.local'
+    ]
+];
+```
 
+#### Batch Process During Off-Peak
+```php
+// Schedule batch operations
+if (date('H') >= 2 && date('H') <= 5) {  // 2 AM - 5 AM
+    processAllBusinesses();
+}
+```
+
+### Debugging
+
+#### Enable Debug Mode
+```php
+// Get detailed error information
+$geo = new GEOOptimizer([
+    'debug' => true,
+    'log_path' => '/var/log/geo-optimizer.log'
+]);
+```
+
+#### Check Component Status
+```php
+// Verify components are working
 try {
-    $results = $geo->optimize($businessData);
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
-    echo "Debug info: " . $e->getTraceAsString();
+    $test = $geo->generateSchema('LocalBusiness', [
+        'business_name' => 'Test',
+        'description' => 'Test business'
+    ]);
+    echo "Schema generator: OK\n";
+} catch (\Exception $e) {
+    echo "Schema generator: FAILED - " . $e->getMessage() . "\n";
 }
 ```
 
-### Validation
-```php
-// Validate data before processing
-$schemaGenerator = new \GEOOptimizer\StructuredData\SchemaGenerator();
+## Support and Resources
 
-if (!$schemaGenerator->validateData('LocalBusiness', $businessData)) {
-    echo "Data validation failed";
-    // Check required fields
-}
-```
+- **Documentation**: [GitHub Wiki](https://github.com/tedrubin80/geolibrary/wiki)
+- **Issues**: [GitHub Issues](https://github.com/tedrubin80/geolibrary/issues)
+- **Examples**: See the `examples/` directory
+- **Community**: Join our Discord server (coming soon)
 
-## Best Practices
+## License
 
-### 1. Data Preparation
-- Always include the three required fields: `name`, `description`, `industry`
-- Use complete, descriptive content for better AI understanding
-- Include location information for local businesses
-- Add authority signals (certifications, awards, years in business)
-
-### 2. File Management
-- Place llms.txt in your website root (`/llms.txt`)
-- Ensure the file is publicly accessible
-- Update llms.txt when business information changes
-- Include llms.txt in your sitemap.xml
-
-### 3. Structured Data
-- Add structured data to every relevant page
-- Use the most specific schema type available
-- Include as much relevant information as possible
-- Validate structured data with Google's Rich Results Test
-
-### 4. Performance
-- Enable caching for production use
-- Generate static files during build process when possible
-- Use appropriate templates for your business type
-- Monitor file sizes and loading times
-
-## Need Help?
-
-- **Documentation**: Check the full API documentation
-- **Examples**: Browse the examples directory
-- **Issues**: Report bugs on GitHub
-- **Support**: Contact support for enterprise users
-
-## What's Next?
-
-After implementing basic GEO optimization:
-
-1. Monitor AI citation performance
-2. A/B test different content structures
-3. Expand to industry-specific optimizations
-4. Integrate with analytics tools
-5. Consider premium features for advanced optimization
+This library is open-source software licensed under the MIT license.

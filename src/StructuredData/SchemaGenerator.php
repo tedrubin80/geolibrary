@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GEOOptimizer\StructuredData;
 
 use Spatie\SchemaOrg\Schema;
@@ -7,12 +9,15 @@ use GEOOptimizer\Exceptions\ValidationException;
 
 /**
  * Schema.org Structured Data Generator
- * 
+ *
  * Generates JSON-LD structured data optimized for AI search engines
  */
 class SchemaGenerator
 {
-    private $supportedTypes = [
+    /**
+     * @var array<string>
+     */
+    private array $supportedTypes = [
         'LocalBusiness',
         'Restaurant', 
         'LegalService',
@@ -28,6 +33,9 @@ class SchemaGenerator
 
     /**
      * Generate structured data schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
     public function generate(string $type, array $data): array
     {
@@ -45,6 +53,9 @@ class SchemaGenerator
 
     /**
      * Generate LocalBusiness schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
     protected function generateLocalBusiness(array $data): array
     {
@@ -135,6 +146,9 @@ class SchemaGenerator
 
     /**
      * Generate Restaurant schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
     protected function generateRestaurant(array $data): array
     {
@@ -176,6 +190,9 @@ class SchemaGenerator
 
     /**
      * Generate LegalService schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
     protected function generateLegalService(array $data): array
     {
@@ -219,6 +236,9 @@ class SchemaGenerator
 
     /**
      * Generate MedicalBusiness schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
     protected function generateMedicalBusiness(array $data): array
     {
@@ -244,7 +264,350 @@ class SchemaGenerator
     }
 
     /**
+     * Generate AutoRepair schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateAutoRepair(array $data): array
+    {
+        $autoRepair = Schema::autoRepair()
+            ->name($data['business_name'])
+            ->description($data['description']);
+
+        // Add services offered
+        if (!empty($data['services'])) {
+            $autoRepair->hasOfferCatalog(
+                Schema::offerCatalog()->itemListElement(
+                    array_map(function($service) {
+                        return Schema::offer()->itemOffered(
+                            Schema::service()->name($service)
+                        );
+                    }, $data['services'])
+                )
+            );
+        }
+
+        // Add brands serviced
+        if (!empty($data['brands_serviced'])) {
+            $autoRepair->brand($data['brands_serviced']);
+        }
+
+        // Add certifications
+        if (!empty($data['certifications'])) {
+            $autoRepair->hasCredential($data['certifications']);
+        }
+
+        // Use LocalBusiness as base and merge
+        $localBusiness = $this->generateLocalBusiness($data);
+        return array_merge($localBusiness, $autoRepair->toArray());
+    }
+
+    /**
+     * Generate HomeAndConstructionBusiness schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateHomeAndConstructionBusiness(array $data): array
+    {
+        $homeBusiness = Schema::homeAndConstructionBusiness()
+            ->name($data['business_name'])
+            ->description($data['description']);
+
+        // Add service areas
+        if (!empty($data['service_areas'])) {
+            $homeBusiness->areaServed($data['service_areas']);
+        }
+
+        // Add license number
+        if (!empty($data['license_number'])) {
+            $homeBusiness->hasCredential(
+                Schema::educationalOccupationalCredential()
+                    ->credentialCategory('License')
+                    ->identifier($data['license_number'])
+            );
+        }
+
+        // Add specialties
+        if (!empty($data['specialties'])) {
+            $homeBusiness->hasOfferCatalog(
+                Schema::offerCatalog()->itemListElement(
+                    array_map(function($specialty) {
+                        return Schema::offer()->itemOffered(
+                            Schema::service()->name($specialty)
+                        );
+                    }, $data['specialties'])
+                )
+            );
+        }
+
+        // Use LocalBusiness as base and merge
+        $localBusiness = $this->generateLocalBusiness($data);
+        return array_merge($localBusiness, $homeBusiness->toArray());
+    }
+
+    /**
+     * Generate Store schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateStore(array $data): array
+    {
+        $store = Schema::store()
+            ->name($data['business_name'])
+            ->description($data['description']);
+
+        // Add product categories
+        if (!empty($data['product_categories'])) {
+            $store->hasOfferCatalog(
+                Schema::offerCatalog()->itemListElement(
+                    array_map(function($category) {
+                        return Schema::offerCatalog()->name($category);
+                    }, $data['product_categories'])
+                )
+            );
+        }
+
+        // Add brand information
+        if (!empty($data['brands_carried'])) {
+            $store->brand($data['brands_carried']);
+        }
+
+        // Add online store URL
+        if (!empty($data['online_store_url'])) {
+            $store->sameAs($data['online_store_url']);
+        }
+
+        // Add return policy
+        if (!empty($data['return_policy'])) {
+            $store->hasMerchantReturnPolicy(
+                Schema::merchantReturnPolicy()
+                    ->returnPolicyCategory($data['return_policy'])
+            );
+        }
+
+        // Use LocalBusiness as base and merge
+        $localBusiness = $this->generateLocalBusiness($data);
+        return array_merge($localBusiness, $store->toArray());
+    }
+
+    /**
+     * Generate RealEstateAgent schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateRealEstateAgent(array $data): array
+    {
+        $realEstateAgent = Schema::realEstateAgent()
+            ->name($data['business_name'])
+            ->description($data['description']);
+
+        // Add service areas
+        if (!empty($data['service_areas'])) {
+            $realEstateAgent->areaServed($data['service_areas']);
+        }
+
+        // Add license number
+        if (!empty($data['license_number'])) {
+            $realEstateAgent->hasCredential(
+                Schema::educationalOccupationalCredential()
+                    ->credentialCategory('Real Estate License')
+                    ->identifier($data['license_number'])
+            );
+        }
+
+        // Add specializations
+        if (!empty($data['specializations'])) {
+            $realEstateAgent->hasOfferCatalog(
+                Schema::offerCatalog()->itemListElement(
+                    array_map(function($specialization) {
+                        return Schema::offer()->itemOffered(
+                            Schema::service()->name($specialization)
+                        );
+                    }, $data['specializations'])
+                )
+            );
+        }
+
+        // Add team members
+        if (!empty($data['team_members'])) {
+            $team = [];
+            foreach ($data['team_members'] as $member) {
+                $person = Schema::person()->name($member['name']);
+                if (!empty($member['title'])) {
+                    $person->jobTitle($member['title']);
+                }
+                $team[] = $person;
+            }
+            $realEstateAgent->employee($team);
+        }
+
+        // Use LocalBusiness as base and merge
+        $localBusiness = $this->generateLocalBusiness($data);
+        return array_merge($localBusiness, $realEstateAgent->toArray());
+    }
+
+    /**
+     * Generate HealthAndBeautyBusiness schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateHealthAndBeautyBusiness(array $data): array
+    {
+        $healthBeauty = Schema::healthAndBeautyBusiness()
+            ->name($data['business_name'])
+            ->description($data['description']);
+
+        // Add services offered
+        if (!empty($data['services'])) {
+            $healthBeauty->hasOfferCatalog(
+                Schema::offerCatalog()->itemListElement(
+                    array_map(function($service) use ($data) {
+                        $offer = Schema::offer()->itemOffered(
+                            Schema::service()->name($service)
+                        );
+                        // Add service duration if available
+                        if (!empty($data['service_durations'][$service])) {
+                            $offer->duration($data['service_durations'][$service]);
+                        }
+                        // Add service price if available
+                        if (!empty($data['service_prices'][$service])) {
+                            $offer->price($data['service_prices'][$service]);
+                        }
+                        return $offer;
+                    }, $data['services'])
+                )
+            );
+        }
+
+        // Add practitioners
+        if (!empty($data['practitioners'])) {
+            $practitioners = [];
+            foreach ($data['practitioners'] as $practitioner) {
+                $person = Schema::person()->name($practitioner['name']);
+                if (!empty($practitioner['specialization'])) {
+                    $person->jobTitle($practitioner['specialization']);
+                }
+                $practitioners[] = $person;
+            }
+            $healthBeauty->employee($practitioners);
+        }
+
+        // Use LocalBusiness as base and merge
+        $localBusiness = $this->generateLocalBusiness($data);
+        return array_merge($localBusiness, $healthBeauty->toArray());
+    }
+
+    /**
+     * Generate EducationalOrganization schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateEducationalOrganization(array $data): array
+    {
+        $educational = Schema::educationalOrganization()
+            ->name($data['business_name'])
+            ->description($data['description']);
+
+        // Add education level
+        if (!empty($data['education_level'])) {
+            $educational->educationalLevel($data['education_level']);
+        }
+
+        // Add accreditation
+        if (!empty($data['accreditation'])) {
+            $educational->hasCredential(
+                Schema::educationalOccupationalCredential()
+                    ->credentialCategory('Accreditation')
+                    ->name($data['accreditation'])
+            );
+        }
+
+        // Add programs offered
+        if (!empty($data['programs'])) {
+            $educational->hasOfferCatalog(
+                Schema::offerCatalog()->itemListElement(
+                    array_map(function($program) {
+                        return Schema::educationalOccupationalProgram()
+                            ->name($program);
+                    }, $data['programs'])
+                )
+            );
+        }
+
+        // Add alumni information
+        if (!empty($data['alumni_count'])) {
+            $educational->alumni(
+                Schema::quantitativeValue()->value($data['alumni_count'])
+            );
+        }
+
+        // Use LocalBusiness as base and merge
+        $localBusiness = $this->generateLocalBusiness($data);
+        return array_merge($localBusiness, $educational->toArray());
+    }
+
+    /**
+     * Generate ProfessionalService schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateProfessionalService(array $data): array
+    {
+        $professional = Schema::professionalService()
+            ->name($data['business_name'])
+            ->description($data['description']);
+
+        // Add service type
+        if (!empty($data['service_type'])) {
+            $professional->serviceType($data['service_type']);
+        }
+
+        // Add qualifications
+        if (!empty($data['qualifications'])) {
+            foreach ($data['qualifications'] as $qualification) {
+                $professional->hasCredential(
+                    Schema::educationalOccupationalCredential()
+                        ->credentialCategory('Professional Qualification')
+                        ->name($qualification)
+                );
+            }
+        }
+
+        // Add service areas
+        if (!empty($data['service_areas'])) {
+            $professional->areaServed($data['service_areas']);
+        }
+
+        // Add expertise areas
+        if (!empty($data['expertise'])) {
+            $professional->hasOfferCatalog(
+                Schema::offerCatalog()->itemListElement(
+                    array_map(function($expertise) {
+                        return Schema::offer()->itemOffered(
+                            Schema::service()->name($expertise)
+                        );
+                    }, $data['expertise'])
+                )
+            );
+        }
+
+        // Use LocalBusiness as base and merge
+        $localBusiness = $this->generateLocalBusiness($data);
+        return array_merge($localBusiness, $professional->toArray());
+    }
+
+    /**
      * Generate FAQ schema
+     *
+     * @param array<int, array<string, string>> $faqs
+     * @return array<string, mixed>
      */
     public function generateFAQ(array $faqs): array
     {
@@ -264,6 +627,9 @@ class SchemaGenerator
 
     /**
      * Generate Article schema
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
     public function generateArticle(array $data): array
     {
@@ -296,7 +662,280 @@ class SchemaGenerator
     }
 
     /**
+     * Generate HowTo schema - Critical for AI responses with instructions
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    public function generateHowTo(array $data): array
+    {
+        $howTo = Schema::howTo()
+            ->name($data['title'])
+            ->description($data['description']);
+
+        // Add estimated cost
+        if (!empty($data['estimated_cost'])) {
+            $howTo->estimatedCost(
+                Schema::monetaryAmount()
+                    ->value($data['estimated_cost']['value'])
+                    ->currency($data['estimated_cost']['currency'] ?? 'USD')
+            );
+        }
+
+        // Add time required
+        if (!empty($data['time_required'])) {
+            $howTo->totalTime($data['time_required']);
+        }
+
+        // Add difficulty level
+        if (!empty($data['difficulty'])) {
+            $howTo->difficulty($data['difficulty']);
+        }
+
+        // Add supply list
+        if (!empty($data['supplies'])) {
+            $supplies = array_map(function($supply) {
+                $item = Schema::howToSupply()->name($supply['name']);
+                if (!empty($supply['quantity'])) {
+                    $item->requiredQuantity($supply['quantity']);
+                }
+                if (!empty($supply['cost'])) {
+                    $item->estimatedCost(
+                        Schema::monetaryAmount()
+                            ->value($supply['cost'])
+                            ->currency('USD')
+                    );
+                }
+                return $item;
+            }, $data['supplies']);
+            $howTo->supply($supplies);
+        }
+
+        // Add tools
+        if (!empty($data['tools'])) {
+            $tools = array_map(function($tool) {
+                return Schema::howToTool()->name($tool);
+            }, $data['tools']);
+            $howTo->tool($tools);
+        }
+
+        // Add steps
+        if (!empty($data['steps'])) {
+            $steps = array_map(function($step, $index) {
+                $howToStep = Schema::howToStep()
+                    ->name($step['name'] ?? "Step " . ($index + 1))
+                    ->text($step['text']);
+
+                if (!empty($step['image'])) {
+                    $howToStep->image($step['image']);
+                }
+                if (!empty($step['url'])) {
+                    $howToStep->url($step['url']);
+                }
+
+                return $howToStep;
+            }, $data['steps'], array_keys($data['steps']));
+            $howTo->step($steps);
+        }
+
+        // Add yield/result
+        if (!empty($data['yield'])) {
+            $howTo->yield($data['yield']);
+        }
+
+        return $howTo->toArray();
+    }
+
+    /**
+     * Generate Product schema - E-commerce support
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    public function generateProduct(array $data): array
+    {
+        $product = Schema::product()
+            ->name($data['name'])
+            ->description($data['description']);
+
+        // Add brand
+        if (!empty($data['brand'])) {
+            $product->brand(
+                Schema::brand()->name($data['brand'])
+            );
+        }
+
+        // Add SKU
+        if (!empty($data['sku'])) {
+            $product->sku($data['sku']);
+        }
+
+        // Add category
+        if (!empty($data['category'])) {
+            $product->category($data['category']);
+        }
+
+        // Add images
+        if (!empty($data['images'])) {
+            $product->image($data['images']);
+        }
+
+        // Add price/offers
+        if (!empty($data['offers'])) {
+            $offers = array_map(function($offer) {
+                $offerSchema = Schema::offer()
+                    ->price($offer['price'])
+                    ->priceCurrency($offer['currency'] ?? 'USD');
+
+                if (!empty($offer['availability'])) {
+                    $offerSchema->availability($offer['availability']);
+                }
+                if (!empty($offer['url'])) {
+                    $offerSchema->url($offer['url']);
+                }
+                if (!empty($offer['seller'])) {
+                    $offerSchema->seller(
+                        Schema::organization()->name($offer['seller'])
+                    );
+                }
+                if (!empty($offer['valid_from'])) {
+                    $offerSchema->validFrom($offer['valid_from']);
+                }
+                if (!empty($offer['valid_through'])) {
+                    $offerSchema->validThrough($offer['valid_through']);
+                }
+
+                return $offerSchema;
+            }, $data['offers']);
+            $product->offers($offers);
+        }
+
+        // Add aggregate rating
+        if (!empty($data['rating'])) {
+            $product->aggregateRating(
+                Schema::aggregateRating()
+                    ->ratingValue($data['rating']['value'])
+                    ->reviewCount($data['rating']['count'])
+                    ->bestRating($data['rating']['best'] ?? 5)
+                    ->worstRating($data['rating']['worst'] ?? 1)
+            );
+        }
+
+        // Add reviews
+        if (!empty($data['reviews'])) {
+            $reviews = array_map(function($review) {
+                $reviewSchema = Schema::review()
+                    ->reviewBody($review['body'])
+                    ->reviewRating(
+                        Schema::rating()
+                            ->ratingValue($review['rating'])
+                            ->bestRating(5)
+                            ->worstRating(1)
+                    );
+
+                if (!empty($review['author'])) {
+                    $reviewSchema->author(
+                        Schema::person()->name($review['author'])
+                    );
+                }
+                if (!empty($review['date'])) {
+                    $reviewSchema->datePublished($review['date']);
+                }
+
+                return $reviewSchema;
+            }, $data['reviews']);
+            $product->review($reviews);
+        }
+
+        // Add specifications
+        if (!empty($data['specifications'])) {
+            foreach ($data['specifications'] as $spec => $value) {
+                $product->additionalProperty(
+                    Schema::propertyValue()
+                        ->name($spec)
+                        ->value($value)
+                );
+            }
+        }
+
+        return $product->toArray();
+    }
+
+    /**
+     * Generate BreadcrumbList schema - Helps AI understand site structure
+     *
+     * @param array<int, array<string, string>> $breadcrumbs
+     * @return array<string, mixed>
+     */
+    public function generateBreadcrumbList(array $breadcrumbs): array
+    {
+        $itemListElement = [];
+
+        foreach ($breadcrumbs as $index => $breadcrumb) {
+            $itemListElement[] = Schema::listItem()
+                ->position($index + 1)
+                ->name($breadcrumb['name'])
+                ->item($breadcrumb['url']);
+        }
+
+        $breadcrumbList = Schema::breadcrumbList()
+            ->itemListElement($itemListElement);
+
+        return $breadcrumbList->toArray();
+    }
+
+    /**
+     * Generate Review/Rating schema - Social proof signals
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    public function generateReview(array $data): array
+    {
+        $review = Schema::review()
+            ->itemReviewed(
+                Schema::thing()
+                    ->name($data['item_name'])
+                    ->description($data['item_description'] ?? '')
+            )
+            ->reviewBody($data['review_body']);
+
+        // Add rating
+        if (!empty($data['rating'])) {
+            $review->reviewRating(
+                Schema::rating()
+                    ->ratingValue($data['rating'])
+                    ->bestRating($data['best_rating'] ?? 5)
+                    ->worstRating($data['worst_rating'] ?? 1)
+            );
+        }
+
+        // Add author
+        if (!empty($data['author'])) {
+            $author = Schema::person()->name($data['author']['name']);
+            if (!empty($data['author']['url'])) {
+                $author->url($data['author']['url']);
+            }
+            $review->author($author);
+        }
+
+        // Add date published
+        $review->datePublished($data['date_published'] ?? date('c'));
+
+        // Add publisher if different from author
+        if (!empty($data['publisher'])) {
+            $review->publisher(
+                Schema::organization()->name($data['publisher'])
+            );
+        }
+
+        return $review->toArray();
+    }
+
+    /**
      * Get all supported schema types
+     *
+     * @return array<string>
      */
     public function getSupportedTypes(): array
     {
@@ -305,6 +944,8 @@ class SchemaGenerator
 
     /**
      * Convert schema array to JSON-LD string
+     *
+     * @param array<string, mixed> $schema
      */
     public function toJsonLd(array $schema): string
     {

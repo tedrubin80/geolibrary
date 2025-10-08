@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GEOOptimizer;
 
 use GEOOptimizer\LLMSTxt\Generator;
@@ -7,22 +9,25 @@ use GEOOptimizer\StructuredData\SchemaGenerator;
 use GEOOptimizer\Analysis\ContentAnalyzer;
 use GEOOptimizer\Templates\IndustryTemplateManager;
 use GEOOptimizer\Analytics\CitationTracker;
+use GEOOptimizer\Cache\CacheManager;
+use GEOOptimizer\Cache\CacheInterface;
 use GEOOptimizer\Exceptions\GEOException;
 
 /**
  * Main GEO Optimizer class
- * 
+ *
  * This is the primary entry point for the GEO Optimizer library.
  * It provides a unified interface for all GEO optimization features.
  */
 class GEOOptimizer
 {
-    private $config;
-    private $llmsTxtGenerator;
-    private $schemaGenerator;
-    private $contentAnalyzer;
-    private $templateManager;
-    private $citationTracker;
+    private array $config;
+    private Generator $llmsTxtGenerator;
+    private SchemaGenerator $schemaGenerator;
+    private ContentAnalyzer $contentAnalyzer;
+    private IndustryTemplateManager $templateManager;
+    private CitationTracker $citationTracker;
+    private CacheInterface $cache;
 
     public function __construct(array $config = [])
     {
@@ -35,6 +40,14 @@ class GEOOptimizer
      */
     public function generateLLMSTxt(array $businessData): string
     {
+        if ($this->config['cache_enabled'] ?? false) {
+            $cacheKey = CacheManager::createKey('llms_txt', $businessData);
+
+            return CacheManager::remember($cacheKey, function() use ($businessData) {
+                return $this->llmsTxtGenerator->generate($businessData);
+            }, $this->config['cache_ttl'] ?? 3600);
+        }
+
         return $this->llmsTxtGenerator->generate($businessData);
     }
 
@@ -43,6 +56,14 @@ class GEOOptimizer
      */
     public function generateSchema(string $type, array $data): array
     {
+        if ($this->config['cache_enabled'] ?? false) {
+            $cacheKey = CacheManager::createKey("schema_{$type}", $data);
+
+            return CacheManager::remember($cacheKey, function() use ($type, $data) {
+                return $this->schemaGenerator->generate($type, $data);
+            }, $this->config['cache_ttl'] ?? 3600);
+        }
+
         return $this->schemaGenerator->generate($type, $data);
     }
 
@@ -51,6 +72,17 @@ class GEOOptimizer
      */
     public function analyzeContent(string $content, array $options = []): array
     {
+        if ($this->config['cache_enabled'] ?? false) {
+            $cacheKey = CacheManager::createKey('content_analysis', [
+                'content_hash' => md5($content),
+                'options' => $options
+            ]);
+
+            return CacheManager::remember($cacheKey, function() use ($content, $options) {
+                return $this->contentAnalyzer->analyze($content, $options);
+            }, $this->config['cache_ttl'] ?? 1800);
+        }
+
         return $this->contentAnalyzer->analyze($content, $options);
     }
 
@@ -106,19 +138,25 @@ class GEOOptimizer
 
     private function initializeComponents(): void
     {
-        $this->llmsTxtGenerator = new Generator($this->config['templates_path'] ?? null);
+        $this->llmsTxtGenerator = new Generator($this->config);
         $this->schemaGenerator = new SchemaGenerator();
         $this->contentAnalyzer = new ContentAnalyzer($this->config['analysis'] ?? []);
         $this->templateManager = new IndustryTemplateManager();
         $this->citationTracker = new CitationTracker($this->config['tracking'] ?? []);
+        $this->cache = CacheManager::getInstance($this->config['cache'] ?? []);
     }
 
     private function getDefaultConfig(): array
     {
         return [
             'templates_path' => __DIR__ . '/LLMSTxt/Templates',
-            'cache_enabled' => true,
+            'cache_enabled' => false,  // Disabled by default for development
             'cache_ttl' => 3600,
+            'cache' => [
+                'adapter' => 'file',
+                'path' => sys_get_temp_dir() . '/geo_cache',
+                'prefix' => 'geo_'
+            ],
             'analysis' => [
                 'min_word_count' => 300,
                 'target_keyword_density' => 0.02,

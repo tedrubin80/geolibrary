@@ -1,23 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GEOOptimizer\Analysis;
 
 use GEOOptimizer\Exceptions\ValidationException;
 
 /**
  * Content Analyzer for GEO Optimization
- * 
+ *
  * Analyzes content for AI-friendliness and citation potential
  */
 class ContentAnalyzer
 {
-    private $config;
-    private $authorityKeywords = [
+    /**
+     * @var array<string, mixed>
+     */
+    private array $config;
+
+    /**
+     * @var array<string>
+     */
+    private array $authorityKeywords = [
         'certified', 'licensed', 'accredited', 'award-winning', 'experienced',
         'expert', 'professional', 'established', 'trusted', 'years of experience',
         'ISO certified', 'BBB rated', 'industry leader', 'recognized'
     ];
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(array $config = [])
     {
         $this->config = array_merge([
@@ -32,9 +44,8 @@ class ContentAnalyzer
     /**
      * Comprehensive GEO analysis of content
      *
-     * @param string $content Content to analyze
-     * @param array $metadata Additional metadata
-     * @return array Analysis results
+     * @param array<string, mixed> $metadata Additional metadata
+     * @return array<string, mixed> Analysis results
      */
     public function analyzeForGEO(string $content, array $metadata = []): array
     {
@@ -64,8 +75,7 @@ class ContentAnalyzer
     /**
      * Analyze content readability for AI consumption
      *
-     * @param string $content
-     * @return array Readability metrics
+     * @return array<string, mixed> Readability metrics
      */
     private function analyzeReadability(string $content): array
     {
@@ -94,8 +104,7 @@ class ContentAnalyzer
     /**
      * Detect authority signals in content
      *
-     * @param string $content
-     * @return array Authority analysis
+     * @return array<string, mixed> Authority analysis
      */
     private function detectAuthoritySignals(string $content): array
     {
@@ -141,8 +150,7 @@ class ContentAnalyzer
     /**
      * Analyze content structure for AI parsing
      *
-     * @param string $content
-     * @return array Structure analysis
+     * @return array<string, mixed> Structure analysis
      */
     private function analyzeStructure(string $content): array
     {
@@ -183,9 +191,8 @@ class ContentAnalyzer
     /**
      * Assess citation potential
      *
-     * @param string $content
-     * @param array $metadata
-     * @return array Citation assessment
+     * @param array<string, mixed> $metadata
+     * @return array<string, mixed> Citation assessment
      */
     private function assessCitationPotential(string $content, array $metadata = []): array
     {
@@ -210,9 +217,8 @@ class ContentAnalyzer
     /**
      * Assess content completeness
      *
-     * @param string $content
-     * @param array $metadata
-     * @return array Completeness assessment
+     * @param array<string, mixed> $metadata
+     * @return array<string, mixed> Completeness assessment
      */
     private function assessCompleteness(string $content, array $metadata = []): array
     {
@@ -250,8 +256,7 @@ class ContentAnalyzer
     /**
      * Calculate overall GEO score
      *
-     * @param array $analysis
-     * @return float Overall score
+     * @param array<string, mixed> $analysis
      */
     private function calculateOverallScore(array $analysis): float
     {
@@ -273,9 +278,8 @@ class ContentAnalyzer
     /**
      * Generate improvement suggestions
      *
-     * @param array $analysis
-     * @param string $content
-     * @return array Suggestions
+     * @param array<string, mixed> $analysis
+     * @return array<int, array<string, string>> Suggestions
      */
     private function generateImprovements(array $analysis, string $content): array
     {
@@ -347,9 +351,14 @@ class ContentAnalyzer
     }
 
     // Helper methods
+
+    /**
+     * @return array<int, string>
+     */
     private function splitIntoSentences(string $content): array
     {
-        return preg_split('/[.!?]+/', $content, -1, PREG_SPLIT_NO_EMPTY);
+        $sentences = preg_split('/[.!?]+/', $content, -1, PREG_SPLIT_NO_EMPTY);
+        return $sentences !== false ? $sentences : [];
     }
 
     private function calculateReadabilityScore(float $avgWords, int $longSentences, int $totalSentences): float
@@ -418,6 +427,9 @@ class ContentAnalyzer
         return min(100, $actionCount * 15);
     }
 
+    /**
+     * @param array<string, mixed> $metadata
+     */
     private function assessUniqueness(string $content, array $metadata): float
     {
         // Basic uniqueness assessment
@@ -430,6 +442,9 @@ class ContentAnalyzer
         return array_sum($uniqueFactors) / count($uniqueFactors);
     }
 
+    /**
+     * @param array<string, mixed> $metadata
+     */
     private function assessFreshness(array $metadata): float
     {
         if (!isset($metadata['last_updated'])) {
@@ -447,6 +462,9 @@ class ContentAnalyzer
         return 20;
     }
 
+    /**
+     * @param array<string, mixed> $metadata
+     */
     private function hasLocalReferences(string $content, array $metadata): float
     {
         $location = $metadata['location'] ?? '';
@@ -483,6 +501,9 @@ class ContentAnalyzer
         return min(100, $count * 20);
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function findCitationTriggers(string $content): array
     {
         $triggers = [];
@@ -505,6 +526,9 @@ class ContentAnalyzer
         return $triggers;
     }
 
+    /**
+     * @return array<string, array<int, string>>
+     */
     private function getRequiredElements(string $businessType): array
     {
         $common = [

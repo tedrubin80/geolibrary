@@ -1,20 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GEOOptimizer\Analytics;
 
 use GEOOptimizer\Exceptions\GEOException;
 
 /**
  * Citation Tracker
- * 
+ *
  * Tracks and monitors AI citations of your content across different platforms
  */
 class CitationTracker
 {
-    private $config;
-    private $storage;
-    private $apiEndpoints;
+    /**
+     * @var array<string, mixed>
+     */
+    private array $config;
 
+    private ?string $storage = null;
+
+    /**
+     * @var array<string, string>
+     */
+    private array $apiEndpoints;
+
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(array $config = [])
     {
         $this->config = array_merge([
@@ -30,6 +43,8 @@ class CitationTracker
 
     /**
      * Track citations for a domain
+     *
+     * @return array<string, mixed>
      */
     public function trackDomain(string $domain): array
     {
@@ -66,6 +81,8 @@ class CitationTracker
 
     /**
      * Get citation history for domain
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getCitationHistory(string $domain, int $days = 30): array
     {
@@ -91,6 +108,8 @@ class CitationTracker
 
     /**
      * Get citation trends and insights
+     *
+     * @return array<string, mixed>
      */
     public function getCitationInsights(string $domain): array
     {
@@ -111,6 +130,9 @@ class CitationTracker
 
     /**
      * Monitor specific content URLs
+     *
+     * @param array<int, string> $urls
+     * @return array<string, array<string, mixed>>
      */
     public function monitorContent(array $urls): array
     {
@@ -130,6 +152,8 @@ class CitationTracker
 
     /**
      * Check all AI sources for citations
+     *
+     * @return array<string, array<string, mixed>>
      */
     private function checkAllSources(string $domain): array
     {
@@ -145,6 +169,8 @@ class CitationTracker
 
     /**
      * Check search engines for citations
+     *
+     * @return array<string, mixed>
      */
     private function checkSearchEngines(string $domain): array
     {
@@ -165,6 +191,8 @@ class CitationTracker
 
     /**
      * Check AI assistants for citations
+     *
+     * @return array<string, mixed>
      */
     private function checkAIAssistants(string $domain): array
     {
@@ -182,6 +210,8 @@ class CitationTracker
 
     /**
      * Check social media mentions
+     *
+     * @return array<string, mixed>
      */
     private function checkSocialMentions(string $domain): array
     {
@@ -195,6 +225,8 @@ class CitationTracker
 
     /**
      * Check news citations
+     *
+     * @return array<string, mixed>
      */
     private function checkNewsCitations(string $domain): array
     {
@@ -208,6 +240,8 @@ class CitationTracker
 
     /**
      * Find AI mentions of specific content
+     *
+     * @return array<string, mixed>
      */
     private function findAIMentions(string $url): array
     {
@@ -225,6 +259,8 @@ class CitationTracker
 
     /**
      * Get citation context
+     *
+     * @return array<string, array<int, string>>
      */
     private function getCitationContext(string $url): array
     {
@@ -243,6 +279,15 @@ class CitationTracker
     }
 
     /**
+     * Check content citations
+     */
+    private function checkContentCitations(string $url): int
+    {
+        // In production, this would check actual citation counts
+        return rand(0, 10);
+    }
+
+    /**
      * Score content for citation potential
      */
     private function scoreContent(string $url): int
@@ -254,6 +299,8 @@ class CitationTracker
 
     /**
      * Calculate citation growth rate
+     *
+     * @param array<int, array<string, mixed>> $history
      */
     private function calculateGrowthRate(array $history): float
     {
@@ -272,6 +319,8 @@ class CitationTracker
 
     /**
      * Get most cited content
+     *
+     * @return array<int, array<string, mixed>>
      */
     private function getMostCitedContent(string $domain): array
     {
@@ -285,6 +334,9 @@ class CitationTracker
 
     /**
      * Get peak citation days
+     *
+     * @param array<int, array<string, mixed>> $history
+     * @return array<int, array<string, mixed>>
      */
     private function getPeakDays(array $history): array
     {
@@ -297,6 +349,9 @@ class CitationTracker
 
     /**
      * Get source breakdown
+     *
+     * @param array<int, array<string, mixed>> $history
+     * @return array<string, int>
      */
     private function getSourceBreakdown(array $history): array
     {
@@ -320,6 +375,9 @@ class CitationTracker
 
     /**
      * Generate recommendations based on citation data
+     *
+     * @param array<int, array<string, mixed>> $history
+     * @return array<int, array<string, string>>
      */
     private function generateRecommendations(array $history): array
     {
@@ -405,6 +463,8 @@ class CitationTracker
 
     /**
      * Save citation data
+     *
+     * @param array<string, mixed> $data
      */
     private function saveCitationData(string $domain, array $data): void
     {
@@ -418,12 +478,18 @@ class CitationTracker
 
     /**
      * Get citation files for domain
+     *
+     * @return array<int, string>
      */
     private function getCitationFiles(string $domain, int $startDate): array
     {
         $pattern = $this->config['storage_path'] . '/' . md5($domain) . '_*.json';
         $files = glob($pattern);
-        
+
+        if ($files === false) {
+            return [];
+        }
+
         return array_filter($files, function($file) use ($startDate) {
             return filemtime($file) >= $startDate;
         });
@@ -431,6 +497,9 @@ class CitationTracker
 
     /**
      * Process citation history data
+     *
+     * @param array<int, array<string, mixed>> $history
+     * @return array<int, array<string, mixed>>
      */
     private function processHistory(array $history): array
     {
@@ -444,6 +513,8 @@ class CitationTracker
 
     /**
      * Send notification webhook
+     *
+     * @param array<string, mixed> $citationData
      */
     private function sendNotification(string $domain, array $citationData): void
     {
@@ -462,6 +533,8 @@ class CitationTracker
 
     /**
      * Send webhook request
+     *
+     * @param array<string, mixed> $payload
      */
     private function sendWebhook(string $url, array $payload): void
     {
