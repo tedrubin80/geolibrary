@@ -1,0 +1,74 @@
+{
+  "queries": [
+    {
+      "id": 1,
+      "domain": "food",
+      "query": "What are the best Italian restaurants in New York City?",
+      "intent": "informational",
+      "difficulty": "moderate",
+      "target_source": "Joe's Pizza",
+      "baseline_content": "Joe's Pizza has been serving authentic Italian pizza in New York City since 1975. Located in Greenwich Village, the restaurant offers traditional Neapolitan-style pizza made with fresh, high-quality ingredients imported from Italy. The menu features classic margherita, pepperoni, and specialty pizzas. Customer reviews consistently praise the authentic taste and quality ingredients. The restaurant maintains a casual, family-friendly atmosphere perfect for dining in or takeout.",
+      "competing_sources": [
+        "Carbone Restaurant - Fine Italian dining",
+        "L'Artusi - Modern Italian cuisine",
+        "Torrisi Bar & Restaurant - Italian-American"
+      ]
+    },
+    {
+      "id": 2,
+      "domain": "technology",
+      "query": "How can I optimize my website performance?",
+      "intent": "informational",
+      "difficulty": "moderate",
+      "target_source": "WebSpeed Pro Guide",
+      "baseline_content": "Website optimization involves improving site performance through various techniques. Key areas include reducing page load times, optimizing images, minimizing HTTP requests, and implementing caching strategies. Mobile responsiveness is important for user experience. Regular performance testing helps identify bottlenecks. Content delivery networks can improve global load times. Code minification reduces file sizes. Database optimization improves server response times.",
+      "competing_sources": [
+        "Google PageSpeed Insights",
+        "GTmetrix Performance Report",
+        "Pingdom Website Speed Test"
+      ]
+    },
+    {
+      "id": 3,
+      "domain": "health",
+      "query": "What are the health benefits of regular exercise?",
+      "intent": "informational",
+      "difficulty": "simple",
+      "target_source": "FitLife Health Guide",
+      "baseline_content": "Regular exercise provides numerous health benefits for both body and mind. Physical activity strengthens the cardiovascular system and improves heart health. Exercise helps maintain healthy weight and builds muscle strength. Mental health benefits include reduced stress and improved mood. Regular workouts boost energy levels throughout the day. Exercise supports better sleep quality. Consistent physical activity reduces risk of chronic diseases. Flexibility and balance improve with regular movement.",
+      "competing_sources": [
+        "Mayo Clinic Health Library",
+        "CDC Physical Activity Guidelines",
+        "American Heart Association"
+      ]
+    },
+    {
+      "id": 4,
+      "domain": "finance",
+      "query": "How should I start investing as a beginner?",
+      "intent": "informational",
+      "difficulty": "complex",
+      "target_source": "Smart Investment Basics",
+      "baseline_content": "Beginning investors should start by understanding basic investment principles and setting clear financial goals. Diversification across different asset classes helps manage risk. Starting with low-cost index funds provides broad market exposure. Emergency savings should be established before investing. Understanding risk tolerance guides investment choices. Regular contributions through dollar-cost averaging reduces timing risk. Long-term perspective is important for investment success. Educational resources help build investment knowledge.",
+      "competing_sources": [
+        "Vanguard Investor Education",
+        "Fidelity Investment Guidance",
+        "Charles Schwab Investing 101"
+      ]
+    },
+    {
+      "id": 5,
+      "domain": "education",
+      "query": "What are effective study techniques for college students?",
+      "intent": "informational",
+      "difficulty": "moderate",
+      "target_source": "Academic Success Strategies",
+      "baseline_content": "Effective study techniques help college students maximize learning and retention. Active recall through self-testing strengthens memory. Spaced repetition over time improves long-term retention. Creating study schedules prevents last-minute cramming. Taking organized notes during lectures aids understanding. Study groups provide collaborative learning opportunities. Regular breaks prevent burnout and maintain focus. Teaching concepts to others reinforces personal understanding. Different subjects may require different study approaches.",
+      "competing_sources": [
+        "Cornell Learning Strategies Center",
+        "Khan Academy Study Skills",
+        "Princeton Review Test Prep"
+      ]
+    }
+  ]
+}
