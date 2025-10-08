@@ -30,11 +30,11 @@ env/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
-# Ollama Models (DO NOT PUSH)
+# Ollama Models (DO NOT PUSH - AI model files only, not Python models)
 *.bin
 *.gguf
-models/
-ollama_models/
+**/ollama_models/
+# Note: backend/models/ contains Python code and should be tracked
 
 # Node.js / Frontend
 node_modules/
