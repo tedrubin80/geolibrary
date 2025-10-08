@@ -36,7 +36,7 @@ class Content(Base, TimestampMixin):
     # Metadata
     author = Column(String(255))
     source_url = Column(String(1000))
-    metadata = Column(JSON, default=dict)
+    meta_data = Column(JSON, default=dict)  # Renamed from 'metadata' (reserved by SQLAlchemy)
 
     # Relationships
     versions = relationship("ContentVersion", back_populates="content", cascade="all, delete-orphan")

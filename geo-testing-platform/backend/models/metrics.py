@@ -43,7 +43,7 @@ class Metrics(Base, TimestampMixin):
     confidence_interval_upper = Column(Float)
 
     # Additional metrics
-    metadata = Column(JSON, default=dict)  # Extra metrics for analysis
+    meta_data = Column(JSON, default=dict)  # Extra metrics for analysis (renamed from 'metadata' - reserved by SQLAlchemy)
 
     # Relationships
     response = relationship("Response", back_populates="metrics")

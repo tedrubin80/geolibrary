@@ -43,14 +43,22 @@ ollama list
 echo ""
 echo "Creating Python virtual environment..."
 python3 -m venv venv
-source venv/bin/activate
 
-# Install dependencies
+# Verify venv was created
+if [ ! -f venv/bin/python ]; then
+    echo "❌ Virtual environment creation failed"
+    exit 1
+fi
+echo "✅ Virtual environment created"
+
+# Install dependencies (use venv's pip directly)
 echo ""
 echo "Installing Python dependencies..."
-pip install --upgrade pip
-pip install -r requirements.txt
-pip install jupyter jupyterlab ipykernel pandas matplotlib seaborn scipy
+./venv/bin/pip install --upgrade pip
+./venv/bin/pip install -r requirements.txt
+./venv/bin/pip install jupyter jupyterlab ipykernel pandas matplotlib seaborn scipy
+
+echo "✅ Dependencies installed"
 
 # Create .env file
 if [ ! -f .env ]; then
@@ -70,14 +78,12 @@ mkdir -p results/patent_evidence
 # Initialize database
 echo ""
 echo "Initializing database..."
-cd backend
-python database.py
-cd ..
+./venv/bin/python backend/database.py
 
 # Test Ollama connection
 echo ""
 echo "Testing Ollama connection..."
-python3 << EOF
+./venv/bin/python << EOF
 import asyncio
 from backend.services.ollama_client import OllamaClient
 
@@ -104,10 +110,11 @@ if [ $? -eq 0 ]; then
     echo "=========================================="
     echo ""
     echo "Next steps:"
-    echo "1. Review .env file for configuration"
-    echo "2. Run Jupyter Lab: jupyter lab"
-    echo "3. Open: notebooks/01_initial_testing.ipynb"
-    echo "4. Or run cron test: ./cron_jobs/run_daily_tests.sh"
+    echo "1. Activate virtual environment: source venv/bin/activate"
+    echo "2. Review .env file for configuration"
+    echo "3. Run Jupyter Lab: jupyter lab"
+    echo "4. Open: notebooks/01_initial_testing.ipynb"
+    echo "5. Or run cron test: ./cron_jobs/run_daily_tests.sh"
     echo ""
     echo "Happy testing!"
 else
