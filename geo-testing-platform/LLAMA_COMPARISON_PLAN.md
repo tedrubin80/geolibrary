@@ -39,7 +39,7 @@
 - Same statistical analysis (t-tests, Cohen's d, confidence intervals)
 
 **What Changes**:
-- Model: `mistral:7b-instruct` → `llama3:latest` or `llama3.1:latest`
+- Model: `mistral:7b-instruct` → `llama3:latest` or `llama3.1:8b`
 - Separate results directory: `results/llama/`
 - Separate database table or flag to distinguish model
 - Comparison analysis script at end
@@ -73,10 +73,10 @@
 ollama list | grep llama
 
 # If not installed, pull it
-ollama pull llama3.1:latest
+ollama pull llama3.1:8b
 
 # Test it
-ollama run llama3.1:latest "Test prompt"
+ollama run llama3.1:8b "Test prompt"
 ```
 
 ### 2. Modify Monte Carlo Script for Llama
@@ -86,10 +86,10 @@ ollama run llama3.1:latest "Test prompt"
 cp run_monte_carlo.py run_monte_carlo_llama.py
 
 # Edit to change model
-# Line 30: default_model="llama3.1:latest"
+# Line 30: default_model="llama3.1:8b"
 
 # Or use environment variable approach:
-export GEO_TEST_MODEL="llama3.1:latest"
+export GEO_TEST_MODEL="llama3.1:8b"
 ./venv/bin/python run_monte_carlo.py
 ```
 

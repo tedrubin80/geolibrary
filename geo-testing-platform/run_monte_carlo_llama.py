@@ -106,7 +106,7 @@ async def run_monte_carlo_experiment():
     print(f"  • Total tests: {len(list(GEOMethod)) * ITERATIONS}")
     print("=" * 80)
 
-    ollama = OllamaClient(default_model="llama3.1:latest")
+    ollama = OllamaClient(default_model="llama3.1:8b")
     calc = GEOMetricsCalculator()
 
     # Load query
