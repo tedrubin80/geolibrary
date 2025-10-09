@@ -1,0 +1,524 @@
+{
+  "timestamp": "2025-10-09T02:47:53.769473",
+  "config": {
+    "iterations": 5,
+    "quick_mode": true
+  },
+  "query": {
+    "id": 1,
+    "domain": "food",
+    "query": "What are the best Italian restaurants in New York City?",
+    "intent": "informational",
+    "difficulty": "moderate",
+    "target_source": "Joe's Pizza",
+    "baseline_content": "Joe's Pizza has been serving authentic Italian pizza in New York City since 1975. Located in Greenwich Village, the restaurant offers traditional Neapolitan-style pizza made with fresh, high-quality ingredients imported from Italy. The menu features classic margherita, pepperoni, and specialty pizzas. Customer reviews consistently praise the authentic taste and quality ingredients. The restaurant maintains a casual, family-friendly atmosphere perfect for dining in or takeout.",
+    "competing_sources": [
+      "Carbone Restaurant - Fine Italian dining",
+      "L'Artusi - Modern Italian cuisine",
+      "Torrisi Bar & Restaurant - Italian-American"
+    ]
+  },
+  "baseline_avg_pawc": 30.346410161513777,
+  "summary": [
+    {
+      "method": "baseline",
+      "iterations": 5,
+      "avg_pawc": 30.346410161513777,
+      "std_dev": 3.687817782917155,
+      "improvement_pct": 0,
+      "citation_rate": 100.0,
+      "raw_results": [
+        {
+          "success": true,
+          "iteration": 1,
+          "pawc": 31.73205080756888,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 46587
+        },
+        {
+          "success": true,
+          "iteration": 2,
+          "pawc": 25.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 57216
+        },
+        {
+          "success": true,
+          "iteration": 3,
+          "pawc": 35.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 39422
+        },
+        {
+          "success": true,
+          "iteration": 4,
+          "pawc": 31.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 33159
+        },
+        {
+          "success": true,
+          "iteration": 5,
+          "pawc": 29.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 35346
+        }
+      ]
+    },
+    {
+      "method": "statistics",
+      "iterations": 5,
+      "avg_pawc": 29.097467838366967,
+      "std_dev": 7.265027515189428,
+      "improvement_pct": -4.1156180137931315,
+      "citation_rate": 100.0,
+      "raw_results": [
+        {
+          "success": true,
+          "iteration": 1,
+          "pawc": 17.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 54613
+        },
+        {
+          "success": true,
+          "iteration": 2,
+          "pawc": 29.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 80044
+        },
+        {
+          "success": true,
+          "iteration": 3,
+          "pawc": 35.05231034929043,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 160588
+        },
+        {
+          "success": true,
+          "iteration": 4,
+          "pawc": 34.4350288425444,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 77967
+        },
+        {
+          "success": true,
+          "iteration": 5,
+          "pawc": 30.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 65392
+        }
+      ]
+    },
+    {
+      "method": "citation",
+      "iterations": 5,
+      "avg_pawc": 28.303383856603574,
+      "std_dev": 10.507259399965909,
+      "improvement_pct": -6.732349210455311,
+      "citation_rate": 100.0,
+      "raw_results": [
+        {
+          "success": true,
+          "iteration": 1,
+          "pawc": 17.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 75390
+        },
+        {
+          "success": true,
+          "iteration": 2,
+          "pawc": 19.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 66153
+        },
+        {
+          "success": true,
+          "iteration": 3,
+          "pawc": 42.25592894601846,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 79106
+        },
+        {
+          "success": true,
+          "iteration": 4,
+          "pawc": 33.91934955049954,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 69706
+        },
+        {
+          "success": true,
+          "iteration": 5,
+          "pawc": 29.341640786499873,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 74310
+        }
+      ]
+    },
+    {
+      "method": "authoritative",
+      "iterations": 5,
+      "avg_pawc": 32.20739173183737,
+      "std_dev": 2.7589816166309125,
+      "improvement_pct": 6.132460348419544,
+      "citation_rate": 100.0,
+      "raw_results": [
+        {
+          "success": true,
+          "iteration": 1,
+          "pawc": 31.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 70330
+        },
+        {
+          "success": true,
+          "iteration": 2,
+          "pawc": 31.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 59528
+        },
+        {
+          "success": true,
+          "iteration": 3,
+          "pawc": 37.14213562373095,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 57731
+        },
+        {
+          "success": true,
+          "iteration": 4,
+          "pawc": 31.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 47507
+        },
+        {
+          "success": true,
+          "iteration": 5,
+          "pawc": 30.8948230354559,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 91885
+        }
+      ]
+    },
+    {
+      "method": "quotation",
+      "iterations": 5,
+      "avg_pawc": 20.618376618407357,
+      "std_dev": 3.1981529086163194,
+      "improvement_pct": -32.056620507435845,
+      "citation_rate": 100.0,
+      "raw_results": [
+        {
+          "success": true,
+          "iteration": 1,
+          "pawc": 26.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 62138
+        },
+        {
+          "success": true,
+          "iteration": 2,
+          "pawc": 19.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 75151
+        },
+        {
+          "success": true,
+          "iteration": 3,
+          "pawc": 19.09188309203678,
+          "cited": 1,
+          "position": 2,
+          "generation_time": 58436
+        },
+        {
+          "success": true,
+          "iteration": 4,
+          "pawc": 21.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 63608
+        },
+        {
+          "success": true,
+          "iteration": 5,
+          "pawc": 18.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 47317
+        }
+      ]
+    },
+    {
+      "method": "fluency",
+      "iterations": 5,
+      "avg_pawc": 30.014929255246543,
+      "std_dev": 1.7848459726852968,
+      "improvement_pct": -1.0923232912986478,
+      "citation_rate": 100.0,
+      "raw_results": [
+        {
+          "success": true,
+          "iteration": 1,
+          "pawc": 27.886751345948127,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 42395
+        },
+        {
+          "success": true,
+          "iteration": 2,
+          "pawc": 29.020815280171306,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 42210
+        },
+        {
+          "success": true,
+          "iteration": 3,
+          "pawc": 32.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 40291
+        },
+        {
+          "success": true,
+          "iteration": 4,
+          "pawc": 31.73205080756888,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 50169
+        },
+        {
+          "success": true,
+          "iteration": 5,
+          "pawc": 29.4350288425444,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 50684
+        }
+      ]
+    },
+    {
+      "method": "technical",
+      "iterations": 5,
+      "avg_pawc": 26.4,
+      "std_dev": 9.235799911215054,
+      "improvement_pct": -13.00453707871758,
+      "citation_rate": 100.0,
+      "raw_results": [
+        {
+          "success": true,
+          "iteration": 1,
+          "pawc": 38.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 59234
+        },
+        {
+          "success": true,
+          "iteration": 2,
+          "pawc": 21.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 66169
+        },
+        {
+          "success": true,
+          "iteration": 3,
+          "pawc": 14.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 50753
+        },
+        {
+          "success": true,
+          "iteration": 4,
+          "pawc": 31.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 51780
+        },
+        {
+          "success": true,
+          "iteration": 5,
+          "pawc": 28.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 41996
+        }
+      ]
+    },
+    {
+      "method": "easy",
+      "iterations": 5,
+      "avg_pawc": 22.0,
+      "std_dev": 5.0990195135927845,
+      "improvement_pct": -27.503780898931314,
+      "citation_rate": 100.0,
+      "raw_results": [
+        {
+          "success": true,
+          "iteration": 1,
+          "pawc": 16.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 52888
+        },
+        {
+          "success": true,
+          "iteration": 2,
+          "pawc": 30.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 49192
+        },
+        {
+          "success": true,
+          "iteration": 3,
+          "pawc": 22.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 50525
+        },
+        {
+          "success": true,
+          "iteration": 4,
+          "pawc": 20.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 40054
+        },
+        {
+          "success": true,
+          "iteration": 5,
+          "pawc": 22.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 33907
+        }
+      ]
+    },
+    {
+      "method": "keyword",
+      "iterations": 5,
+      "avg_pawc": 25.8,
+      "std_dev": 15.336231610144651,
+      "improvement_pct": -14.9817066905649,
+      "citation_rate": 80.0,
+      "raw_results": [
+        {
+          "success": true,
+          "iteration": 1,
+          "pawc": 28.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 41321
+        },
+        {
+          "success": true,
+          "iteration": 2,
+          "pawc": 34.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 42895
+        },
+        {
+          "success": true,
+          "iteration": 3,
+          "pawc": 27.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 48606
+        },
+        {
+          "success": true,
+          "iteration": 4,
+          "pawc": 40.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 45949
+        },
+        {
+          "success": true,
+          "iteration": 5,
+          "pawc": 0.0,
+          "cited": 0,
+          "position": null,
+          "generation_time": 47726
+        }
+      ]
+    },
+    {
+      "method": "unique",
+      "iterations": 5,
+      "avg_pawc": 29.8,
+      "std_dev": 3.8340579025361627,
+      "improvement_pct": -1.8005759449160483,
+      "citation_rate": 100.0,
+      "raw_results": [
+        {
+          "success": true,
+          "iteration": 1,
+          "pawc": 35.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 51972
+        },
+        {
+          "success": true,
+          "iteration": 2,
+          "pawc": 32.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 48912
+        },
+        {
+          "success": true,
+          "iteration": 3,
+          "pawc": 29.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 78068
+        },
+        {
+          "success": true,
+          "iteration": 4,
+          "pawc": 25.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 49350
+        },
+        {
+          "success": true,
+          "iteration": 5,
+          "pawc": 28.0,
+          "cited": 1,
+          "position": 1,
+          "generation_time": 45788
+        }
+      ]
+    }
+  ]
+}
