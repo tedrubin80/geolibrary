@@ -43,9 +43,39 @@ python run_monte_carlo_llama.py >> logs/cron_biweekly_llama.log 2>&1
 
 # Check exit status
 if [ $? -eq 0 ]; then
-    echo "$(date): Monte Carlo run completed successfully" >> "$PROJECT_DIR/logs/cron_biweekly_llama.log"
+    echo "$(date): Llama Monte Carlo run completed successfully" >> "$PROJECT_DIR/logs/cron_biweekly_llama.log"
+
+    # Update notebook with latest results
+    echo "$(date): Updating results notebook..." >> "$PROJECT_DIR/logs/cron_biweekly_llama.log"
+    python update_notebook_results.py >> logs/cron_biweekly_llama.log 2>&1
+
+    # Commit and push results to GitHub
+    echo "$(date): Committing Llama results to GitHub..." >> "$PROJECT_DIR/logs/cron_biweekly_llama.log"
+
+    # Find latest results file
+    LATEST_RESULT=$(ls -t results/monte_carlo_*.json | head -1)
+    RUN_NUMBER=$(( ($(cat $START_DATE_FILE) - $CURRENT_DATE) / 86400 + 1 ))
+
+    git add results/ notebooks/ RESEARCH_HYPOTHESIS.md STATUS.md >> logs/cron_biweekly_llama.log 2>&1
+    git commit -m "Automated Monte Carlo run #$RUN_NUMBER - Llama Model - $(date +%Y-%m-%d)
+
+Results: $LATEST_RESULT
+Phase: 2 (Llama 3.1)
+Status: Biweekly automated testing
+
+🤖 Automated commit from cron job
+Co-Authored-By: Claude <noreply@anthropic.com>" >> logs/cron_biweekly_llama.log 2>&1
+
+    git push >> logs/cron_biweekly_llama.log 2>&1
+
+    if [ $? -eq 0 ]; then
+        echo "$(date): ✅ Llama results pushed to GitHub successfully" >> "$PROJECT_DIR/logs/cron_biweekly_llama.log"
+    else
+        echo "$(date): ⚠️ Warning: Git push failed (check credentials)" >> "$PROJECT_DIR/logs/cron_biweekly_llama.log"
+    fi
+
 else
-    echo "$(date): ERROR - Monte Carlo run failed" >> "$PROJECT_DIR/logs/cron_biweekly_llama.log"
+    echo "$(date): ERROR - Llama Monte Carlo run failed" >> "$PROJECT_DIR/logs/cron_biweekly_llama.log"
 fi
 
 # Calculate days remaining

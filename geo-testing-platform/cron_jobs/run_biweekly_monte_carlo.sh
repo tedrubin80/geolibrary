@@ -44,6 +44,36 @@ python run_monte_carlo.py >> logs/cron_biweekly.log 2>&1
 # Check exit status
 if [ $? -eq 0 ]; then
     echo "$(date): Monte Carlo run completed successfully" >> "$PROJECT_DIR/logs/cron_biweekly.log"
+
+    # Update notebook with latest results
+    echo "$(date): Updating results notebook..." >> "$PROJECT_DIR/logs/cron_biweekly.log"
+    python update_notebook_results.py >> logs/cron_biweekly.log 2>&1
+
+    # Commit and push results to GitHub
+    echo "$(date): Committing results to GitHub..." >> "$PROJECT_DIR/logs/cron_biweekly.log"
+
+    # Find latest results file
+    LATEST_RESULT=$(ls -t results/monte_carlo_*.json | head -1)
+    RUN_NUMBER=$(( ($(cat $START_DATE_FILE) - $CURRENT_DATE) / 86400 + 1 ))
+
+    git add results/ notebooks/ RESEARCH_HYPOTHESIS.md STATUS.md >> logs/cron_biweekly.log 2>&1
+    git commit -m "Automated Monte Carlo run #$RUN_NUMBER - $(date +%Y-%m-%d)
+
+Results: $LATEST_RESULT
+Phase: 1 (Mistral 7B)
+Status: Biweekly automated testing
+
+🤖 Automated commit from cron job
+Co-Authored-By: Claude <noreply@anthropic.com>" >> logs/cron_biweekly.log 2>&1
+
+    git push >> logs/cron_biweekly.log 2>&1
+
+    if [ $? -eq 0 ]; then
+        echo "$(date): ✅ Results pushed to GitHub successfully" >> "$PROJECT_DIR/logs/cron_biweekly.log"
+    else
+        echo "$(date): ⚠️ Warning: Git push failed (check credentials)" >> "$PROJECT_DIR/logs/cron_biweekly.log"
+    fi
+
 else
     echo "$(date): ERROR - Monte Carlo run failed" >> "$PROJECT_DIR/logs/cron_biweekly.log"
 fi
