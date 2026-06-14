@@ -1,0 +1,51 @@
+{
+    "name": "yourname/php-geo-optimizer",
+    "description": "A comprehensive PHP library for Generative Engine Optimization (GEO) - optimize your websites for AI-powered search engines",
+    "type": "library",
+    "keywords": ["geo", "seo", "ai", "llm", "optimization", "schema", "structured-data"],
+    "homepage": "https://github.com/yourname/php-geo-optimizer",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Your Name",
+            "email": "your.email@example.com",
+            "homepage": "https://yourwebsite.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "ext-json": "*",
+        "spatie/schema-org": "^3.0",
+        "twig/twig": "^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "phpstan/phpstan": "^1.0",
+        "squizlabs/php_codesniffer": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "GEOOptimizer\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GEOOptimizer\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage",
+        "phpstan": "phpstan analyse src",
+        "cs-check": "phpcs src tests",
+        "cs-fix": "phpcbf src tests"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0-dev"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

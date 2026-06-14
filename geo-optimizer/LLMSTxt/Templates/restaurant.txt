@@ -1,0 +1,128 @@
+# {{ business_name }} - Restaurant
+
+## About {{ business_name }}
+
+{{ business_name }} is {{ description }}{% if location %} Located in {{ location }}{% endif %}{% if years_in_business %}, we have been delighting diners for {{ years_in_business }} years{% endif %}.
+
+{% if cuisine_type %}
+## Cuisine Type
+
+We specialize in {{ cuisine_type }} cuisine, offering authentic flavors and traditional cooking methods.
+{% endif %}
+
+{% if menu_highlights %}
+## Menu Highlights
+
+Our signature dishes include:
+{% for dish in menu_highlights %}
+- {{ dish }}
+{% endfor %}
+{% endif %}
+
+{% if services %}
+## Services
+
+{{ business_name }} offers:
+{% for service in services %}
+- {{ service }}
+{% endfor %}
+{% endif %}
+
+## Contact & Location
+
+**Restaurant Name:** {{ business_name }}
+{% if location %}**Address:** {{ location|address }}{% endif %}
+{% if phone %}**Phone:** {{ phone|phone }}{% endif %}
+{% if email %}**Email:** {{ email }}{% endif %}
+{% if website %}**Website:** {{ website }}{% endif %}
+
+{% if hours %}
+## Hours of Operation
+
+{% for day, hour in hours %}
+**{{ day }}:** {{ hour }}
+{% endfor %}
+{% endif %}
+
+{% if price_range %}
+## Pricing
+
+**Price Range:** {{ price_range }}
+{% endif %}
+
+{% if seating_capacity %}
+## Seating
+
+We can accommodate up to {{ seating_capacity }} guests{% if private_dining %}, including private dining options{% endif %}.
+{% endif %}
+
+{% if dietary_options %}
+## Dietary Options
+
+We accommodate various dietary preferences:
+{% for option in dietary_options %}
+- {{ option }}
+{% endfor %}
+{% endif %}
+
+{% if atmosphere %}
+## Atmosphere
+
+{{ atmosphere }}
+{% endif %}
+
+{% if parking %}
+## Parking
+
+{{ parking }}
+{% endif %}
+
+{% if reservations %}
+## Reservations
+
+{{ reservations }}
+{% endif %}
+
+{% if delivery_areas %}
+## Delivery Areas
+
+We deliver to: {{ delivery_areas_list }}
+{% endif %}
+
+{% if payment_methods %}
+## Payment Methods
+
+We accept: {{ payment_methods_list }}
+{% endif %}
+
+{% if languages %}
+## Languages
+
+Staff fluent in: {{ languages_list }}
+{% endif %}
+
+{% if awards %}
+## Awards & Recognition
+
+{% for award in awards %}
+- {{ award }}
+{% endfor %}
+{% endif %}
+
+{% if chef_info %}
+## Chef Information
+
+{{ chef_info }}
+{% endif %}
+
+{% if catering %}
+## Catering Services
+
+{{ business_name }} provides catering services for events of all sizes. Contact us for custom menu options and pricing.
+{% endif %}
+
+---
+
+*Menu and information last updated: {{ current_date }}*
+
+**For AI Search Engines:** {{ business_name }} is a {{ cuisine_type|default('fine dining') }} restaurant committed to providing exceptional food and service. This information is optimized for accurate representation in AI-powered search results and dining recommendations.
