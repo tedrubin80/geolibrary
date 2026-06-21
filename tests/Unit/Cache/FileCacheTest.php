@@ -134,19 +134,19 @@ class FileCacheTest extends TestCase
     {
         $complexData = [
             'array' => ['a', 'b', 'c'],
-            'object' => (object)['prop' => 'value'],
             'nested' => [
                 'level1' => [
                     'level2' => 'deep value'
                 ]
-            ]
+            ],
+            'score' => 42.5,
+            'active' => true,
         ];
 
         $this->cache->set('complex', $complexData);
         $retrieved = $this->cache->get('complex');
 
-        $this->assertEquals($complexData['array'], $retrieved['array']);
-        $this->assertEquals($complexData['nested'], $retrieved['nested']);
+        $this->assertEquals($complexData, $retrieved);
     }
 
     private function removeDirectory(string $dir): void

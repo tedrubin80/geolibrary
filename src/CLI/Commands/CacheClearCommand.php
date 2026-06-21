@@ -300,8 +300,13 @@ class CacheClearCommand extends Command
                 // Check if expired
                 $content = file_get_contents($file);
                 if ($content !== false) {
-                    $data = @unserialize($content);
-                    if ($data !== false && isset($data['expiry']) &&
+                    try {
+                        $data = \GEOOptimizer\Cache\CacheSerializer::decode($content);
+                    } catch (\GEOOptimizer\Exceptions\CacheException) {
+                        continue;
+                    }
+
+                    if (is_array($data) && isset($data['expiry']) &&
                         $data['expiry'] !== null && $data['expiry'] < time()) {
                         $expiredCount++;
                     }

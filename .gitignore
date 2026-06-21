@@ -31,5 +31,8 @@ Thumbs.db
 /build/
 /dist/
 
+# Local editor / agent config (not part of the product)
+.claude/
+
 # Archive (prior research)
 /archive/

@@ -4,26 +4,32 @@ declare(strict_types=1);
 
 namespace GEOOptimizer\Analytics;
 
+use GEOOptimizer\Contracts\TrackerInterface;
 use GEOOptimizer\Exceptions\GEOException;
+use GEOOptimizer\Platforms\OpenAIAdapter;
+use GEOOptimizer\Platforms\ClaudeAdapter;
+use GEOOptimizer\Platforms\PerplexityAdapter;
+use GEOOptimizer\Platforms\GoogleAIAdapter;
 
 /**
  * Citation Tracker
  *
- * Tracks and monitors AI citations of your content across different platforms
+ * Tracks and monitors AI citations of your content across different platforms.
+ * Provides GEO Readiness scoring and manual citation logging capabilities.
  */
-class CitationTracker
+class CitationTracker implements TrackerInterface
 {
     /**
      * @var array<string, mixed>
      */
     private array $config;
 
-    private ?string $storage = null;
+    private string $storagePath;
 
     /**
-     * @var array<string, string>
+     * @var array<string, object>
      */
-    private array $apiEndpoints;
+    private array $platformAdapters = [];
 
     /**
      * @param array<string, mixed> $config
@@ -31,539 +37,800 @@ class CitationTracker
     public function __construct(array $config = [])
     {
         $this->config = array_merge([
-            'storage_path' => 'citations/',
-            'check_interval' => 3600, // 1 hour
+            'storage_path' => sys_get_temp_dir() . '/geo_citations',
+            'check_interval' => 3600,
             'max_checks_per_day' => 100,
-            'notification_webhook' => null
+            'notification_webhook' => null,
+            'platforms' => [
+                'openai' => ['enabled' => false, 'api_key' => ''],
+                'claude' => ['enabled' => false, 'api_key' => ''],
+                'perplexity' => ['enabled' => false, 'api_key' => ''],
+                'google' => ['enabled' => false, 'api_key' => '']
+            ]
         ], $config);
-        
+
+        $this->storagePath = $this->config['storage_path'];
         $this->initializeStorage();
-        $this->setupAPIEndpoints();
+        $this->initializePlatformAdapters();
     }
 
     /**
-     * Track citations for a business name across platforms
-     *
-     * @param array<string> $platforms
-     * @return array<string, mixed>
+     * {@inheritdoc}
      */
-    public function track(string $businessName, array $platforms = []): array
+    public function track(string $identifier, array $options = []): array
     {
-        // Convert business name to domain-like format for compatibility
-        // Remove special characters and spaces
-        $domain = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', $businessName)));
-        if (empty($domain)) {
-            $domain = 'example.com'; // Fallback for edge cases
-        }
-        return $this->trackDomain($domain);
-    }
+        $this->validateIdentifier($identifier);
 
-    /**
-     * Track citations for a domain
-     *
-     * @return array<string, mixed>
-     */
-    public function trackDomain(string $domain): array
-    {
-        $this->validateDomain($domain);
-        
-        $citations = [
-            'domain' => $domain,
-            'timestamp' => time(),
-            'sources' => $this->checkAllSources($domain),
-            'total_citations' => 0,
-            'new_citations' => 0,
-            'trending_topics' => []
+        $timestamp = time();
+        $results = [
+            'identifier' => $identifier,
+            'timestamp' => $timestamp,
+            'date' => date('Y-m-d H:i:s', $timestamp),
+            'geo_readiness' => $this->calculateGEOReadiness($identifier, $options),
+            'platform_analysis' => [],
+            'manual_citations' => $this->getManualCitations($identifier),
+            'recommendations' => []
         ];
 
-        // Calculate totals
-        foreach ($citations['sources'] as $source => $data) {
-            $citations['total_citations'] += $data['count'];
-        }
-
-        // Check for new citations since last check
-        $lastCheck = $this->getLastCheck($domain);
-        $citations['new_citations'] = $this->countNewCitations($domain, $lastCheck);
-
-        // Save results
-        $this->saveCitationData($domain, $citations);
-        
-        // Send notifications if configured
-        if ($citations['new_citations'] > 0 && $this->config['notification_webhook']) {
-            $this->sendNotification($domain, $citations);
-        }
-
-        return $citations;
-    }
-
-    /**
-     * Get citation history for domain
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    public function getCitationHistory(string $domain, int $days = 30): array
-    {
-        $history = [];
-        $startDate = time() - ($days * 24 * 60 * 60);
-        
-        $files = $this->getCitationFiles($domain, $startDate);
-        
-        foreach ($files as $file) {
-            $data = json_decode(file_get_contents($file), true);
-            if ($data && $data['timestamp'] >= $startDate) {
-                $history[] = [
-                    'date' => date('Y-m-d', $data['timestamp']),
-                    'total_citations' => $data['total_citations'],
-                    'new_citations' => $data['new_citations'],
-                    'sources' => $data['sources']
+        // Analyze each configured platform
+        foreach ($this->platformAdapters as $name => $adapter) {
+            if ($adapter->isAvailable()) {
+                $results['platform_analysis'][$name] = $this->analyzePlatform(
+                    $adapter,
+                    $identifier,
+                    $options
+                );
+            } else {
+                $results['platform_analysis'][$name] = [
+                    'available' => false,
+                    'message' => 'API key not configured'
                 ];
             }
         }
 
-        return $this->processHistory($history);
-    }
+        // Generate recommendations
+        $results['recommendations'] = $this->generateRecommendations($results);
 
-    /**
-     * Get citation trends and insights
-     *
-     * @return array<string, mixed>
-     */
-    public function getCitationInsights(string $domain): array
-    {
-        $history = $this->getCitationHistory($domain, 30);
-        
-        if (empty($history)) {
-            return ['error' => 'No citation data available'];
-        }
+        // Calculate summary metrics
+        $results['summary'] = $this->calculateSummary($results);
 
-        return [
-            'growth_rate' => $this->calculateGrowthRate($history),
-            'most_cited_content' => $this->getMostCitedContent($domain),
-            'peak_citation_days' => $this->getPeakDays($history),
-            'source_breakdown' => $this->getSourceBreakdown($history),
-            'recommendations' => $this->generateRecommendations($history)
-        ];
-    }
+        // Save tracking data
+        $this->saveTrackingData($identifier, $results);
 
-    /**
-     * Monitor specific content URLs
-     *
-     * @param array<int, string> $urls
-     * @return array<string, array<string, mixed>>
-     */
-    public function monitorContent(array $urls): array
-    {
-        $results = [];
-        
-        foreach ($urls as $url) {
-            $results[$url] = [
-                'citations_found' => $this->checkContentCitations($url),
-                'ai_mentions' => $this->findAIMentions($url),
-                'citation_context' => $this->getCitationContext($url),
-                'optimization_score' => $this->scoreContent($url)
-            ];
+        // Send notifications if configured
+        if ($this->config['notification_webhook'] && $this->shouldNotify($results)) {
+            $this->sendNotification($identifier, $results);
         }
 
         return $results;
     }
 
     /**
-     * Check all AI sources for citations
-     *
-     * @return array<string, array<string, mixed>>
+     * {@inheritdoc}
      */
-    private function checkAllSources(string $domain): array
+    public function getHistory(string $identifier, int $days = 30): array
     {
-        $sources = [
-            'search_engines' => $this->checkSearchEngines($domain),
-            'ai_assistants' => $this->checkAIAssistants($domain),
-            'social_mentions' => $this->checkSocialMentions($domain),
-            'news_citations' => $this->checkNewsCitations($domain)
-        ];
+        $history = [];
+        $startDate = time() - ($days * 86400);
+        $files = $this->getTrackingFiles($identifier, $startDate);
 
-        return $sources;
-    }
+        foreach ($files as $file) {
+            $content = file_get_contents($file);
+            if ($content === false) continue;
 
-    /**
-     * Check search engines for citations
-     *
-     * @return array<string, mixed>
-     */
-    private function checkSearchEngines(string $domain): array
-    {
-        // Simulate checking Google, Bing, etc. for domain mentions
-        // In production, this would use actual search APIs
-        
-        return [
-            'count' => rand(5, 25),
-            'sources' => ['Google AI Overviews', 'Bing Chat', 'Perplexity'],
-            'sample_queries' => [
-                'best services in [location]',
-                'how to [service related query]',
-                '[business type] near me'
-            ],
-            'last_checked' => time()
-        ];
-    }
-
-    /**
-     * Check AI assistants for citations
-     *
-     * @return array<string, mixed>
-     */
-    private function checkAIAssistants(string $domain): array
-    {
-        // Simulate checking ChatGPT, Claude, etc.
-        // In production, this would monitor actual AI responses
-        
-        return [
-            'count' => rand(3, 15),
-            'platforms' => ['ChatGPT', 'Claude', 'Gemini'],
-            'citation_types' => ['direct_reference', 'indirect_mention', 'source_link'],
-            'confidence_score' => rand(70, 95),
-            'last_checked' => time()
-        ];
-    }
-
-    /**
-     * Check social media mentions
-     *
-     * @return array<string, mixed>
-     */
-    private function checkSocialMentions(string $domain): array
-    {
-        return [
-            'count' => rand(2, 10),
-            'platforms' => ['Twitter', 'LinkedIn', 'Reddit'],
-            'sentiment' => 'positive',
-            'last_checked' => time()
-        ];
-    }
-
-    /**
-     * Check news citations
-     *
-     * @return array<string, mixed>
-     */
-    private function checkNewsCitations(string $domain): array
-    {
-        return [
-            'count' => rand(1, 5),
-            'sources' => ['Local news', 'Industry publications'],
-            'topics' => ['business feature', 'expert quote'],
-            'last_checked' => time()
-        ];
-    }
-
-    /**
-     * Find AI mentions of specific content
-     *
-     * @return array<string, mixed>
-     */
-    private function findAIMentions(string $url): array
-    {
-        // In production, this would check if the URL is being cited
-        return [
-            'total_mentions' => rand(0, 8),
-            'ai_platforms' => ['ChatGPT', 'Claude'],
-            'mention_contexts' => [
-                'answer_source',
-                'reference_link',
-                'expert_opinion'
-            ]
-        ];
-    }
-
-    /**
-     * Get citation context
-     *
-     * @return array<string, array<int, string>>
-     */
-    private function getCitationContext(string $url): array
-    {
-        return [
-            'common_queries' => [
-                'What are the best [services] in [location]?',
-                'How do I [relevant action]?',
-                'Who are the top [business type] providers?'
-            ],
-            'citation_reasons' => [
-                'Authoritative source',
-                'Local expertise',
-                'Detailed information'
-            ]
-        ];
-    }
-
-    /**
-     * Check content citations
-     */
-    private function checkContentCitations(string $url): int
-    {
-        // In production, this would check actual citation counts
-        return rand(0, 10);
-    }
-
-    /**
-     * Score content for citation potential
-     */
-    private function scoreContent(string $url): int
-    {
-        // Simulate content scoring
-        // In production, this would analyze actual content
-        return rand(60, 95);
-    }
-
-    /**
-     * Calculate citation growth rate
-     *
-     * @param array<int, array<string, mixed>> $history
-     */
-    private function calculateGrowthRate(array $history): float
-    {
-        if (count($history) < 2) return 0;
-        
-        $recent = array_slice($history, -7); // Last 7 days
-        $previous = array_slice($history, -14, 7); // Previous 7 days
-        
-        $recentAvg = array_sum(array_column($recent, 'total_citations')) / count($recent);
-        $previousAvg = array_sum(array_column($previous, 'total_citations')) / count($previous);
-        
-        if ($previousAvg == 0) return 0;
-        
-        return (($recentAvg - $previousAvg) / $previousAvg) * 100;
-    }
-
-    /**
-     * Get most cited content
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function getMostCitedContent(string $domain): array
-    {
-        // In production, this would track individual page citations
-        return [
-            ['url' => $domain . '/services', 'citations' => 15],
-            ['url' => $domain . '/about', 'citations' => 12],
-            ['url' => $domain . '/contact', 'citations' => 8]
-        ];
-    }
-
-    /**
-     * Get peak citation days
-     *
-     * @param array<int, array<string, mixed>> $history
-     * @return array<int, array<string, mixed>>
-     */
-    private function getPeakDays(array $history): array
-    {
-        usort($history, function($a, $b) {
-            return $b['total_citations'] - $a['total_citations'];
-        });
-        
-        return array_slice($history, 0, 3);
-    }
-
-    /**
-     * Get source breakdown
-     *
-     * @param array<int, array<string, mixed>> $history
-     * @return array<string, int>
-     */
-    private function getSourceBreakdown(array $history): array
-    {
-        $breakdown = [
-            'search_engines' => 0,
-            'ai_assistants' => 0,
-            'social_mentions' => 0,
-            'news_citations' => 0
-        ];
-        
-        foreach ($history as $day) {
-            if (isset($day['sources'])) {
-                foreach ($breakdown as $source => $count) {
-                    $breakdown[$source] += $day['sources'][$source]['count'] ?? 0;
-                }
+            $data = json_decode($content, true);
+            if ($data && ($data['timestamp'] ?? 0) >= $startDate) {
+                $history[] = [
+                    'date' => $data['date'] ?? date('Y-m-d', $data['timestamp']),
+                    'geo_readiness_score' => $data['geo_readiness']['overall_score'] ?? 0,
+                    'manual_citations' => count($data['manual_citations'] ?? []),
+                    'platforms_analyzed' => array_keys($data['platform_analysis'] ?? [])
+                ];
             }
         }
-        
-        return $breakdown;
+
+        usort($history, fn($a, $b) => strtotime($a['date']) - strtotime($b['date']));
+
+        return $history;
     }
 
     /**
-     * Generate recommendations based on citation data
-     *
-     * @param array<int, array<string, mixed>> $history
-     * @return array<int, array<string, string>>
+     * {@inheritdoc}
      */
-    private function generateRecommendations(array $history): array
+    public function getInsights(string $identifier): array
+    {
+        $history = $this->getHistory($identifier, 30);
+
+        if (empty($history)) {
+            return [
+                'status' => 'no_data',
+                'message' => 'No tracking data available. Run track() first.'
+            ];
+        }
+
+        $scores = array_column($history, 'geo_readiness_score');
+        $citations = array_column($history, 'manual_citations');
+
+        return [
+            'identifier' => $identifier,
+            'period_days' => 30,
+            'data_points' => count($history),
+            'geo_readiness' => [
+                'current' => end($scores),
+                'average' => round(array_sum($scores) / count($scores), 1),
+                'trend' => $this->calculateTrend($scores),
+                'high' => max($scores),
+                'low' => min($scores)
+            ],
+            'citations' => [
+                'total_logged' => array_sum($citations),
+                'average_per_check' => round(array_sum($citations) / count($citations), 1)
+            ],
+            'recommendations' => $this->getInsightRecommendations($history)
+        ];
+    }
+
+    /**
+     * Log a manual citation discovery
+     *
+     * @param string $identifier Business/domain identifier
+     * @param array<string, mixed> $citationData Citation details
+     * @return bool Success status
+     */
+    public function logCitation(string $identifier, array $citationData): bool
+    {
+        $citation = array_merge([
+            'timestamp' => time(),
+            'date' => date('Y-m-d H:i:s'),
+            'platform' => 'unknown',
+            'query' => '',
+            'context' => '',
+            'url' => '',
+            'screenshot' => '',
+            'verified' => false
+        ], $citationData);
+
+        $filename = $this->getCitationLogFile($identifier);
+        $existing = [];
+
+        if (file_exists($filename)) {
+            $content = file_get_contents($filename);
+            if ($content) {
+                $existing = json_decode($content, true) ?? [];
+            }
+        }
+
+        $existing[] = $citation;
+
+        return file_put_contents(
+            $filename,
+            json_encode($existing, JSON_PRETTY_PRINT)
+        ) !== false;
+    }
+
+    /**
+     * Get manually logged citations
+     *
+     * @param string $identifier
+     * @return array<int, array<string, mixed>>
+     */
+    public function getManualCitations(string $identifier): array
+    {
+        $filename = $this->getCitationLogFile($identifier);
+
+        if (!file_exists($filename)) {
+            return [];
+        }
+
+        $content = file_get_contents($filename);
+        if (!$content) {
+            return [];
+        }
+
+        return json_decode($content, true) ?? [];
+    }
+
+    /**
+     * Calculate GEO Readiness score
+     *
+     * @param array<string, mixed> $options
+     * @return array<string, mixed>
+     */
+    private function calculateGEOReadiness(string $identifier, array $options): array
+    {
+        $content = $options['content'] ?? '';
+        $metadata = $options['metadata'] ?? [];
+
+        $factors = [
+            'content_quality' => $this->assessContentQuality($content),
+            'structure' => $this->assessStructure($content),
+            'authority' => $this->assessAuthority($content, $metadata),
+            'freshness' => $this->assessFreshness($metadata),
+            'discoverability' => $this->assessDiscoverability($identifier, $metadata),
+            'citation_signals' => $this->assessCitationSignals($content)
+        ];
+
+        $weights = [
+            'content_quality' => 0.20,
+            'structure' => 0.20,
+            'authority' => 0.20,
+            'freshness' => 0.10,
+            'discoverability' => 0.15,
+            'citation_signals' => 0.15
+        ];
+
+        $overallScore = 0;
+        foreach ($factors as $factor => $score) {
+            $overallScore += $score * ($weights[$factor] ?? 0);
+        }
+
+        return [
+            'overall_score' => round($overallScore, 1),
+            'factors' => $factors,
+            'weights' => $weights,
+            'grade' => $this->getGrade($overallScore),
+            'interpretation' => $this->getScoreInterpretation($overallScore)
+        ];
+    }
+
+    /**
+     * Assess content quality
+     */
+    private function assessContentQuality(string $content): float
+    {
+        if (empty($content)) return 0;
+
+        $score = 0;
+        $wordCount = str_word_count($content);
+
+        // Word count scoring
+        if ($wordCount >= 300) $score += 20;
+        if ($wordCount >= 500) $score += 10;
+        if ($wordCount >= 1000) $score += 10;
+
+        // Sentence variety
+        $sentences = preg_split('/[.!?]+/', $content, -1, PREG_SPLIT_NO_EMPTY);
+        $sentenceCount = count($sentences);
+        if ($sentenceCount > 0) {
+            $avgLength = $wordCount / $sentenceCount;
+            if ($avgLength >= 10 && $avgLength <= 20) $score += 20;
+            elseif ($avgLength < 25) $score += 10;
+        }
+
+        // Readability indicators
+        $complexWords = preg_match_all('/\b\w{10,}\b/', $content);
+        $complexRatio = $complexWords / max(1, $wordCount);
+        if ($complexRatio < 0.15) $score += 20;
+        elseif ($complexRatio < 0.25) $score += 10;
+
+        // Unique value indicators
+        $uniqueIndicators = ['unique', 'exclusive', 'proprietary', 'original', 'first'];
+        foreach ($uniqueIndicators as $indicator) {
+            if (stripos($content, $indicator) !== false) {
+                $score += 4;
+            }
+        }
+
+        return min(100, $score);
+    }
+
+    /**
+     * Assess content structure
+     */
+    private function assessStructure(string $content): float
+    {
+        if (empty($content)) return 0;
+
+        $score = 0;
+
+        // Headings
+        if (preg_match('/^#{1,6}\s+/m', $content)) $score += 20;
+
+        // Lists
+        if (preg_match('/^[\*\-\+]\s+|^\d+\.\s+/m', $content)) $score += 20;
+
+        // Paragraphs
+        $paragraphs = preg_split('/\n\s*\n/', trim($content));
+        if (count($paragraphs) >= 3) $score += 15;
+
+        // Questions (FAQ style)
+        if (preg_match('/\?$/m', $content)) $score += 15;
+
+        // Short paragraphs (digestible)
+        $avgParagraphLength = array_sum(array_map('strlen', $paragraphs)) / max(1, count($paragraphs));
+        if ($avgParagraphLength < 500) $score += 15;
+
+        // Clear sections
+        if (preg_match('/^#{2}\s+/m', $content)) $score += 15;
+
+        return min(100, $score);
+    }
+
+    /**
+     * Assess authority signals
+     *
+     * @param array<string, mixed> $metadata
+     */
+    private function assessAuthority(string $content, array $metadata): float
+    {
+        $score = 0;
+
+        // Credential keywords
+        $credentialWords = [
+            'certified', 'licensed', 'accredited', 'award', 'expert',
+            'professional', 'specialist', 'years of experience', 'established'
+        ];
+
+        foreach ($credentialWords as $word) {
+            if (stripos($content, $word) !== false) {
+                $score += 10;
+            }
+        }
+
+        // Statistics and data
+        if (preg_match('/\d+%/', $content)) $score += 10;
+        if (preg_match('/\d+\s*(years|clients|projects|customers)/i', $content)) $score += 10;
+
+        // Source citations
+        if (preg_match('/(according to|source:|study shows|research)/i', $content)) $score += 15;
+
+        // Author information in metadata
+        if (!empty($metadata['author'])) $score += 10;
+        if (!empty($metadata['credentials'])) $score += 10;
+
+        return min(100, $score);
+    }
+
+    /**
+     * Assess content freshness
+     *
+     * @param array<string, mixed> $metadata
+     */
+    private function assessFreshness(array $metadata): float
+    {
+        if (empty($metadata['last_updated']) && empty($metadata['published_date'])) {
+            return 50; // Neutral if no date info
+        }
+
+        $lastUpdated = strtotime($metadata['last_updated'] ?? $metadata['published_date']);
+        if (!$lastUpdated) return 50;
+
+        $daysSince = (time() - $lastUpdated) / 86400;
+
+        if ($daysSince <= 7) return 100;
+        if ($daysSince <= 30) return 90;
+        if ($daysSince <= 90) return 75;
+        if ($daysSince <= 180) return 60;
+        if ($daysSince <= 365) return 40;
+
+        return 20;
+    }
+
+    /**
+     * Assess discoverability
+     *
+     * @param array<string, mixed> $metadata
+     */
+    private function assessDiscoverability(string $identifier, array $metadata): float
+    {
+        $score = 50; // Base score
+
+        // Domain/site is indexed
+        if ($metadata['indexed'] ?? false) $score += 20;
+
+        // Has sitemap
+        if ($metadata['has_sitemap'] ?? false) $score += 10;
+
+        // Schema markup present
+        if ($metadata['has_schema'] ?? false) $score += 15;
+
+        // Social presence
+        if (!empty($metadata['social_profiles'])) $score += 5;
+
+        return min(100, $score);
+    }
+
+    /**
+     * Assess citation signals in content
+     */
+    private function assessCitationSignals(string $content): float
+    {
+        if (empty($content)) return 0;
+
+        $score = 0;
+
+        // Definitive statements
+        if (preg_match('/^(the|here are|these are|this is the)/im', $content)) $score += 15;
+
+        // Specific data points
+        $numbers = preg_match_all('/\d+/', $content);
+        if ($numbers >= 3) $score += 15;
+        if ($numbers >= 5) $score += 10;
+
+        // Actionable content
+        $actionWords = ['how to', 'step', 'guide', 'tutorial', 'method'];
+        foreach ($actionWords as $word) {
+            if (stripos($content, $word) !== false) {
+                $score += 10;
+            }
+        }
+
+        // Comprehensive coverage
+        $wordCount = str_word_count($content);
+        if ($wordCount >= 500) $score += 10;
+        if ($wordCount >= 1000) $score += 10;
+
+        // Expert terminology (domain-specific)
+        if (preg_match('/\b(methodology|framework|analysis|implementation|optimization)\b/i', $content)) {
+            $score += 10;
+        }
+
+        return min(100, $score);
+    }
+
+    /**
+     * Analyze a specific platform
+     *
+     * @param object $adapter Platform adapter
+     * @param array<string, mixed> $options
+     * @return array<string, mixed>
+     */
+    private function analyzePlatform(object $adapter, string $identifier, array $options): array
+    {
+        $testQueries = $options['test_queries'] ?? $this->generateTestQueries($identifier, $options);
+
+        return [
+            'available' => true,
+            'platform' => $adapter->getName(),
+            'test_queries' => $testQueries,
+            'optimization_tips' => $adapter->getOptimizationTips($options['content_analysis'] ?? []),
+            'note' => 'For live citation checking, API queries would be performed here'
+        ];
+    }
+
+    /**
+     * Generate test queries for citation checking
+     *
+     * @param array<string, mixed> $options
+     * @return array<string>
+     */
+    private function generateTestQueries(string $identifier, array $options): array
+    {
+        $industry = $options['industry'] ?? 'business';
+        $location = $options['location'] ?? '';
+
+        $queries = [
+            "best {$industry} services" . ($location ? " in {$location}" : ''),
+            "what is {$identifier}",
+            "tell me about {$identifier}",
+            "{$identifier} reviews",
+            "top {$industry} providers" . ($location ? " near {$location}" : '')
+        ];
+
+        return $queries;
+    }
+
+    /**
+     * Generate recommendations based on tracking results
+     *
+     * @param array<string, mixed> $results
+     * @return array<array<string, mixed>>
+     */
+    private function generateRecommendations(array $results): array
     {
         $recommendations = [];
-        
-        $sourceBreakdown = $this->getSourceBreakdown($history);
-        $totalCitations = array_sum($sourceBreakdown);
-        
-        if ($totalCitations < 10) {
+        $geoScore = $results['geo_readiness']['overall_score'] ?? 0;
+        $factors = $results['geo_readiness']['factors'] ?? [];
+
+        if ($geoScore < 60) {
             $recommendations[] = [
-                'type' => 'content',
+                'priority' => 'critical',
+                'category' => 'overall',
+                'message' => 'GEO Readiness score is low. Focus on improving content quality and structure.'
+            ];
+        }
+
+        // Factor-specific recommendations
+        if (($factors['content_quality'] ?? 0) < 60) {
+            $recommendations[] = [
                 'priority' => 'high',
-                'message' => 'Low citation count - improve content authority and specificity'
+                'category' => 'content',
+                'message' => 'Improve content depth and quality. Add more comprehensive information.'
             ];
         }
-        
-        if ($sourceBreakdown['ai_assistants'] < $totalCitations * 0.3) {
+
+        if (($factors['structure'] ?? 0) < 60) {
             $recommendations[] = [
-                'type' => 'optimization',
-                'priority' => 'medium',
-                'message' => 'Optimize content structure for AI assistant citations'
+                'priority' => 'high',
+                'category' => 'structure',
+                'message' => 'Add clear headings, lists, and FAQ sections for better AI parsing.'
             ];
         }
-        
+
+        if (($factors['authority'] ?? 0) < 60) {
+            $recommendations[] = [
+                'priority' => 'medium',
+                'category' => 'authority',
+                'message' => 'Include credentials, experience data, and social proof.'
+            ];
+        }
+
+        if (($factors['freshness'] ?? 0) < 60) {
+            $recommendations[] = [
+                'priority' => 'medium',
+                'category' => 'freshness',
+                'message' => 'Update content regularly and include recent dates.'
+            ];
+        }
+
         return $recommendations;
     }
 
     /**
-     * Initialize storage system
+     * Calculate summary metrics
+     *
+     * @param array<string, mixed> $results
+     * @return array<string, mixed>
      */
-    private function initializeStorage(): void
+    private function calculateSummary(array $results): array
     {
-        $storagePath = $this->config['storage_path'];
-        if (!is_dir($storagePath)) {
-            mkdir($storagePath, 0755, true);
-        }
-    }
+        $platformsConfigured = 0;
+        $platformsAvailable = 0;
 
-    /**
-     * Setup API endpoints for checking citations
-     */
-    private function setupAPIEndpoints(): void
-    {
-        $this->apiEndpoints = [
-            'search' => 'https://api.example.com/search',
-            'social' => 'https://api.example.com/social',
-            'news' => 'https://api.example.com/news'
+        foreach ($results['platform_analysis'] as $platform) {
+            $platformsConfigured++;
+            if ($platform['available'] ?? false) {
+                $platformsAvailable++;
+            }
+        }
+
+        return [
+            'geo_readiness_score' => $results['geo_readiness']['overall_score'] ?? 0,
+            'geo_readiness_grade' => $results['geo_readiness']['grade'] ?? 'N/A',
+            'manual_citations_logged' => count($results['manual_citations'] ?? []),
+            'platforms_configured' => $platformsConfigured,
+            'platforms_available' => $platformsAvailable,
+            'recommendations_count' => count($results['recommendations'] ?? []),
+            'critical_issues' => count(array_filter(
+                $results['recommendations'] ?? [],
+                fn($r) => ($r['priority'] ?? '') === 'critical'
+            ))
         ];
     }
 
     /**
-     * Validate domain format
+     * Get grade from score
      */
-    private function validateDomain(string $domain): void
+    private function getGrade(float $score): string
     {
-        if (!filter_var($domain, FILTER_VALIDATE_URL) && !filter_var("http://{$domain}", FILTER_VALIDATE_URL)) {
-            throw new GEOException("Invalid domain format: {$domain}");
+        if ($score >= 90) return 'A+';
+        if ($score >= 85) return 'A';
+        if ($score >= 80) return 'A-';
+        if ($score >= 75) return 'B+';
+        if ($score >= 70) return 'B';
+        if ($score >= 65) return 'B-';
+        if ($score >= 60) return 'C+';
+        if ($score >= 55) return 'C';
+        if ($score >= 50) return 'C-';
+        if ($score >= 45) return 'D+';
+        if ($score >= 40) return 'D';
+
+        return 'F';
+    }
+
+    /**
+     * Get score interpretation
+     */
+    private function getScoreInterpretation(float $score): string
+    {
+        if ($score >= 80) {
+            return 'Excellent GEO readiness. Content is well-optimized for AI citations.';
+        }
+        if ($score >= 60) {
+            return 'Good GEO readiness. Some improvements could increase citation potential.';
+        }
+        if ($score >= 40) {
+            return 'Moderate GEO readiness. Significant improvements recommended.';
+        }
+
+        return 'Low GEO readiness. Major content and structure improvements needed.';
+    }
+
+    /**
+     * Calculate trend from historical scores
+     *
+     * @param array<float> $scores
+     */
+    private function calculateTrend(array $scores): string
+    {
+        if (count($scores) < 2) return 'insufficient_data';
+
+        $recentAvg = array_sum(array_slice($scores, -3)) / min(3, count($scores));
+        $olderAvg = array_sum(array_slice($scores, 0, 3)) / min(3, count($scores));
+
+        $change = $recentAvg - $olderAvg;
+
+        if ($change > 5) return 'improving';
+        if ($change < -5) return 'declining';
+
+        return 'stable';
+    }
+
+    /**
+     * Get insight-based recommendations
+     *
+     * @param array<array<string, mixed>> $history
+     * @return array<string>
+     */
+    private function getInsightRecommendations(array $history): array
+    {
+        $recommendations = [];
+        $scores = array_column($history, 'geo_readiness_score');
+
+        if (empty($scores)) {
+            return ['Start tracking to generate insights'];
+        }
+
+        $avg = array_sum($scores) / count($scores);
+        $trend = $this->calculateTrend($scores);
+
+        if ($avg < 60) {
+            $recommendations[] = 'Focus on improving overall GEO readiness score';
+        }
+
+        if ($trend === 'declining') {
+            $recommendations[] = 'Scores are declining - review recent content changes';
+        }
+
+        $citations = array_column($history, 'manual_citations');
+        if (array_sum($citations) === 0) {
+            $recommendations[] = 'Start logging citations when you find them in AI responses';
+        }
+
+        return $recommendations;
+    }
+
+    /**
+     * Initialize storage directory
+     */
+    private function initializeStorage(): void
+    {
+        if (!is_dir($this->storagePath)) {
+            mkdir($this->storagePath, 0755, true);
         }
     }
 
     /**
-     * Get last check timestamp for domain
+     * Initialize platform adapters
      */
-    private function getLastCheck(string $domain): int
+    private function initializePlatformAdapters(): void
     {
-        $filename = $this->config['storage_path'] . '/' . md5($domain) . '_last_check.txt';
-        
-        if (file_exists($filename)) {
-            return (int) file_get_contents($filename);
+        $platforms = $this->config['platforms'] ?? [];
+
+        if ($platforms['openai']['enabled'] ?? false) {
+            $this->platformAdapters['openai'] = new OpenAIAdapter([
+                'api_key' => $platforms['openai']['api_key'] ?? ''
+            ]);
         }
-        
-        return 0;
+
+        if ($platforms['claude']['enabled'] ?? false) {
+            $this->platformAdapters['claude'] = new ClaudeAdapter([
+                'api_key' => $platforms['claude']['api_key'] ?? ''
+            ]);
+        }
+
+        if ($platforms['perplexity']['enabled'] ?? false) {
+            $this->platformAdapters['perplexity'] = new PerplexityAdapter([
+                'api_key' => $platforms['perplexity']['api_key'] ?? ''
+            ]);
+        }
+
+        if ($platforms['google']['enabled'] ?? false) {
+            $this->platformAdapters['google'] = new GoogleAIAdapter([
+                'api_key' => $platforms['google']['api_key'] ?? ''
+            ]);
+        }
     }
 
     /**
-     * Count new citations since last check
+     * Validate identifier
      */
-    private function countNewCitations(string $domain, int $lastCheck): int
+    private function validateIdentifier(string $identifier): void
     {
-        // In production, this would compare against stored citation data
-        return rand(0, 5);
+        if (empty(trim($identifier))) {
+            throw new GEOException('Identifier cannot be empty');
+        }
     }
 
     /**
-     * Save citation data
+     * Get tracking files for identifier
      *
-     * @param array<string, mixed> $data
+     * @return array<string>
      */
-    private function saveCitationData(string $domain, array $data): void
+    private function getTrackingFiles(string $identifier, int $startDate): array
     {
-        $filename = $this->config['storage_path'] . '/' . md5($domain) . '_' . date('Y-m-d') . '.json';
-        file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT));
-        
-        // Update last check timestamp
-        $lastCheckFile = $this->config['storage_path'] . '/' . md5($domain) . '_last_check.txt';
-        file_put_contents($lastCheckFile, time());
-    }
-
-    /**
-     * Get citation files for domain
-     *
-     * @return array<int, string>
-     */
-    private function getCitationFiles(string $domain, int $startDate): array
-    {
-        $pattern = $this->config['storage_path'] . '/' . md5($domain) . '_*.json';
+        $hash = $this->getIdentifierHash($identifier);
+        $pattern = "{$this->storagePath}/{$hash}_*.json";
         $files = glob($pattern);
 
         if ($files === false) {
             return [];
         }
 
-        return array_filter($files, function($file) use ($startDate) {
-            return filemtime($file) >= $startDate;
-        });
+        return array_filter($files, fn($file) => filemtime($file) >= $startDate);
     }
 
     /**
-     * Process citation history data
+     * Save tracking data
      *
-     * @param array<int, array<string, mixed>> $history
-     * @return array<int, array<string, mixed>>
+     * @param array<string, mixed> $data
      */
-    private function processHistory(array $history): array
+    private function saveTrackingData(string $identifier, array $data): void
     {
-        // Sort by date
-        usort($history, function($a, $b) {
-            return strtotime($a['date']) - strtotime($b['date']);
-        });
-        
-        return $history;
+        $hash = $this->getIdentifierHash($identifier);
+        $filename = "{$this->storagePath}/{$hash}_" . date('Y-m-d_His') . '.json';
+
+        file_put_contents($filename, json_encode($data, JSON_PRETTY_PRINT));
     }
 
     /**
-     * Send notification webhook
-     *
-     * @param array<string, mixed> $citationData
+     * Get citation log filename
      */
-    private function sendNotification(string $domain, array $citationData): void
+    private function getCitationLogFile(string $identifier): string
     {
-        if (!$this->config['notification_webhook']) return;
-        
+        $hash = $this->getIdentifierHash($identifier);
+        return "{$this->storagePath}/{$hash}_citations.json";
+    }
+
+    /**
+     * Get identifier hash
+     */
+    private function getIdentifierHash(string $identifier): string
+    {
+        return md5(strtolower(trim($identifier)));
+    }
+
+    /**
+     * Check if notification should be sent
+     *
+     * @param array<string, mixed> $results
+     */
+    private function shouldNotify(array $results): bool
+    {
+        // Notify on critical issues or significant score changes
+        return ($results['summary']['critical_issues'] ?? 0) > 0;
+    }
+
+    /**
+     * Send webhook notification
+     *
+     * @param array<string, mixed> $results
+     */
+    private function sendNotification(string $identifier, array $results): void
+    {
+        $webhook = $this->config['notification_webhook'] ?? '';
+        if ($webhook === '' || !\GEOOptimizer\Http\UrlValidator::isAllowedWebhookUrl($webhook)) {
+            return;
+        }
+
         $payload = [
-            'domain' => $domain,
-            'new_citations' => $citationData['new_citations'],
-            'total_citations' => $citationData['total_citations'],
-            'timestamp' => $citationData['timestamp']
+            'identifier' => $identifier,
+            'geo_readiness_score' => $results['geo_readiness']['overall_score'] ?? 0,
+            'critical_issues' => $results['summary']['critical_issues'] ?? 0,
+            'timestamp' => time()
         ];
-        
-        // Send webhook notification
-        $this->sendWebhook($this->config['notification_webhook'], $payload);
-    }
 
-    /**
-     * Send webhook request
-     *
-     * @param array<string, mixed> $payload
-     */
-    private function sendWebhook(string $url, array $payload): void
-    {
-        $options = [
-            'http' => [
-                'header' => "Content-type: application/json\r\n",
-                'method' => 'POST',
-                'content' => json_encode($payload)
-            ]
-        ];
-        
-        $context = stream_context_create($options);
-        @file_get_contents($url, false, $context);
+        $ch = curl_init($webhook);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_TIMEOUT => 5,
+            CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
+        ]);
+        curl_exec($ch);
+        curl_close($ch);
     }
 }

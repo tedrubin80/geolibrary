@@ -94,7 +94,7 @@ class RedisCache implements CacheInterface
                 return $default;
             }
 
-            return unserialize($value);
+            return CacheSerializer::decode($value);
         } catch (\Exception $e) {
             return $default;
         }
@@ -109,13 +109,13 @@ class RedisCache implements CacheInterface
             $redis = $this->getRedis();
             $ttl = $this->normalizeTtl($ttl);
 
-            $serialized = serialize($value);
+            $encoded = CacheSerializer::encode($value);
 
             if ($ttl === null || $ttl <= 0) {
-                return $redis->set($this->prefix . $key, $serialized);
+                return $redis->set($this->prefix . $key, $encoded);
             }
 
-            return $redis->setex($this->prefix . $key, $ttl, $serialized);
+            return $redis->setex($this->prefix . $key, $ttl, $encoded);
         } catch (\Exception $e) {
             return false;
         }
@@ -186,7 +186,16 @@ class RedisCache implements CacheInterface
             $i = 0;
             foreach ($keys as $key) {
                 $value = $values[$i++] ?? false;
-                $result[$key] = $value === false ? $default : unserialize($value);
+                if ($value === false) {
+                    $result[$key] = $default;
+                    continue;
+                }
+
+                try {
+                    $result[$key] = CacheSerializer::decode($value);
+                } catch (CacheException) {
+                    $result[$key] = $default;
+                }
             }
 
             return $result;
@@ -211,12 +220,12 @@ class RedisCache implements CacheInterface
             $redis->multi();
 
             foreach ($values as $key => $value) {
-                $serialized = serialize($value);
+                $encoded = CacheSerializer::encode($value);
 
                 if ($ttl === null || $ttl <= 0) {
-                    $redis->set($this->prefix . $key, $serialized);
+                    $redis->set($this->prefix . $key, $encoded);
                 } else {
-                    $redis->setex($this->prefix . $key, $ttl, $serialized);
+                    $redis->setex($this->prefix . $key, $ttl, $encoded);
                 }
             }
 

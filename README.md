@@ -2,7 +2,7 @@
 
 [![Latest Version](https://img.shields.io/packagist/v/geooptimizer/php-geo-optimizer)](https://packagist.org/packages/geooptimizer/php-geo-optimizer)
 [![PHP Version](https://img.shields.io/packagist/php-v/geooptimizer/php-geo-optimizer)](https://packagist.org/packages/geooptimizer/php-geo-optimizer)
-[![Tests](https://github.com/geooptimizer/php-geo-optimizer/workflows/Tests/badge.svg)](https://github.com/geooptimizer/php-geo-optimizer/actions)
+[![Tests](https://github.com/tedrubin80/geolibrary/actions/workflows/ci.yml/badge.svg)](https://github.com/tedrubin80/geolibrary/actions/workflows/ci.yml)
 [![License](https://img.shields.io/packagist/l/geooptimizer/php-geo-optimizer)](https://github.com/geooptimizer/php-geo-optimizer/blob/main/LICENSE)
 
 **The first comprehensive PHP library for Generative Engine Optimization (GEO)** - optimizing websites for AI-powered search engines like ChatGPT, Claude, Perplexity, and Google AI Overviews.
@@ -50,6 +50,7 @@ file_put_contents('public/llms.txt', $results['llms_txt']);
 
 ## 📚 Documentation
 
+- [Development guide](docs/development.md)
 - [Usage Guide](docs/usage-guide.md)
 - [How to Build Guide](docs/how-to-build.md)
 - [Project Plan](docs/project-plan.md)

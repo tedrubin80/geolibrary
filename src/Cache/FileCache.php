@@ -45,7 +45,17 @@ class FileCache implements CacheInterface
             return $default;
         }
 
-        $data = unserialize($content);
+        try {
+            $data = CacheSerializer::decode($content);
+        } catch (CacheException) {
+            unlink($filename);
+            return $default;
+        }
+
+        if (!is_array($data) || !array_key_exists('value', $data)) {
+            unlink($filename);
+            return $default;
+        }
 
         // Check expiration
         if ($data['expiry'] !== null && $data['expiry'] < time()) {
@@ -72,7 +82,13 @@ class FileCache implements CacheInterface
             'created' => time()
         ];
 
-        $result = file_put_contents($filename, serialize($data), LOCK_EX);
+        try {
+            $payload = CacheSerializer::encode($data);
+        } catch (CacheException) {
+            return false;
+        }
+
+        $result = file_put_contents($filename, $payload, LOCK_EX);
 
         return $result !== false;
     }
@@ -128,7 +144,17 @@ class FileCache implements CacheInterface
             return false;
         }
 
-        $data = unserialize($content);
+        try {
+            $data = CacheSerializer::decode($content);
+        } catch (CacheException) {
+            unlink($filename);
+            return false;
+        }
+
+        if (!is_array($data) || !isset($data['expiry'])) {
+            unlink($filename);
+            return false;
+        }
 
         if ($data['expiry'] !== null && $data['expiry'] < time()) {
             unlink($filename);
@@ -246,7 +272,15 @@ class FileCache implements CacheInterface
                 continue;
             }
 
-            $data = unserialize($content);
+            try {
+                $data = CacheSerializer::decode($content);
+            } catch (CacheException) {
+                continue;
+            }
+
+            if (!is_array($data) || !isset($data['expiry'])) {
+                continue;
+            }
 
             if ($data['expiry'] !== null && $data['expiry'] < time()) {
                 if (unlink($file)) {

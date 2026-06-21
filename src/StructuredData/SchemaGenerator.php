@@ -19,7 +19,7 @@ class SchemaGenerator
      */
     private array $supportedTypes = [
         'LocalBusiness',
-        'Restaurant', 
+        'Restaurant',
         'LegalService',
         'MedicalBusiness',
         'AutoRepair',
@@ -28,7 +28,14 @@ class SchemaGenerator
         'RealEstateAgent',
         'HealthAndBeautyBusiness',
         'EducationalOrganization',
-        'ProfessionalService'
+        'ProfessionalService',
+        'Event',
+        'Course',
+        'SoftwareApplication',
+        'Organization',
+        'Person',
+        'Service',
+        'JobPosting'
     ];
 
     /**
@@ -943,6 +950,652 @@ class SchemaGenerator
     }
 
     /**
+     * Generate Event schema - Critical for AI event recommendations
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateEvent(array $data): array
+    {
+        $event = Schema::event()
+            ->name($data['name'])
+            ->description($data['description']);
+
+        // Add dates
+        if (!empty($data['start_date'])) {
+            $event->startDate($data['start_date']);
+        }
+        if (!empty($data['end_date'])) {
+            $event->endDate($data['end_date']);
+        }
+
+        // Add location
+        if (!empty($data['location'])) {
+            if (is_array($data['location'])) {
+                $place = Schema::place()->name($data['location']['name']);
+                if (!empty($data['location']['address'])) {
+                    $place->address($data['location']['address']);
+                }
+                $event->location($place);
+            } else {
+                $event->location(Schema::place()->name($data['location']));
+            }
+        }
+
+        // Virtual event location
+        if (!empty($data['virtual_location'])) {
+            $event->location(
+                Schema::virtualLocation()->url($data['virtual_location'])
+            );
+        }
+
+        // Add organizer
+        if (!empty($data['organizer'])) {
+            $event->organizer(
+                Schema::organization()->name($data['organizer'])
+            );
+        }
+
+        // Add performer(s)
+        if (!empty($data['performers'])) {
+            $performers = array_map(function($performer) {
+                return Schema::person()->name($performer);
+            }, $data['performers']);
+            $event->performer($performers);
+        }
+
+        // Add ticket offers
+        if (!empty($data['offers'])) {
+            $offers = array_map(function($offer) {
+                $offerSchema = Schema::offer()
+                    ->price($offer['price'])
+                    ->priceCurrency($offer['currency'] ?? 'USD');
+
+                if (!empty($offer['availability'])) {
+                    $offerSchema->availability($offer['availability']);
+                }
+                if (!empty($offer['url'])) {
+                    $offerSchema->url($offer['url']);
+                }
+                if (!empty($offer['valid_from'])) {
+                    $offerSchema->validFrom($offer['valid_from']);
+                }
+
+                return $offerSchema;
+            }, $data['offers']);
+            $event->offers($offers);
+        }
+
+        // Add event status
+        if (!empty($data['event_status'])) {
+            $event->eventStatus($data['event_status']);
+        }
+
+        // Add event attendance mode
+        if (!empty($data['attendance_mode'])) {
+            $event->eventAttendanceMode($data['attendance_mode']);
+        }
+
+        // Add image
+        if (!empty($data['image'])) {
+            $event->image($data['image']);
+        }
+
+        return $event->toArray();
+    }
+
+    /**
+     * Generate Course schema - For educational content
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateCourse(array $data): array
+    {
+        $course = Schema::course()
+            ->name($data['name'])
+            ->description($data['description']);
+
+        // Add provider
+        if (!empty($data['provider'])) {
+            $course->provider(
+                Schema::organization()->name($data['provider'])
+            );
+        }
+
+        // Add instructor
+        if (!empty($data['instructor'])) {
+            $instructor = Schema::person()->name($data['instructor']['name']);
+            if (!empty($data['instructor']['credentials'])) {
+                $instructor->hasCredential($data['instructor']['credentials']);
+            }
+            $course->instructor($instructor);
+        }
+
+        // Add course prerequisites
+        if (!empty($data['prerequisites'])) {
+            $course->coursePrerequisites($data['prerequisites']);
+        }
+
+        // Add educational level
+        if (!empty($data['educational_level'])) {
+            $course->educationalLevel($data['educational_level']);
+        }
+
+        // Add duration
+        if (!empty($data['duration'])) {
+            $course->timeRequired($data['duration']);
+        }
+
+        // Add course instance(s)
+        if (!empty($data['instances'])) {
+            $instances = array_map(function($instance) {
+                $courseInstance = Schema::courseInstance();
+
+                if (!empty($instance['start_date'])) {
+                    $courseInstance->startDate($instance['start_date']);
+                }
+                if (!empty($instance['end_date'])) {
+                    $courseInstance->endDate($instance['end_date']);
+                }
+                if (!empty($instance['course_mode'])) {
+                    $courseInstance->courseMode($instance['course_mode']);
+                }
+                if (!empty($instance['location'])) {
+                    $courseInstance->location(Schema::place()->name($instance['location']));
+                }
+
+                return $courseInstance;
+            }, $data['instances']);
+            $course->hasCourseInstance($instances);
+        }
+
+        // Add offers/pricing
+        if (!empty($data['offers'])) {
+            $offers = array_map(function($offer) {
+                return Schema::offer()
+                    ->price($offer['price'])
+                    ->priceCurrency($offer['currency'] ?? 'USD');
+            }, $data['offers']);
+            $course->offers($offers);
+        }
+
+        // Add skills gained
+        if (!empty($data['skills'])) {
+            $course->teaches($data['skills']);
+        }
+
+        // Add credential earned
+        if (!empty($data['credential'])) {
+            $course->educationalCredentialAwarded($data['credential']);
+        }
+
+        // Add rating
+        if (!empty($data['rating'])) {
+            $course->aggregateRating(
+                Schema::aggregateRating()
+                    ->ratingValue($data['rating']['value'])
+                    ->reviewCount($data['rating']['count'])
+            );
+        }
+
+        return $course->toArray();
+    }
+
+    /**
+     * Generate SoftwareApplication schema - For apps, tools, and software
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateSoftwareApplication(array $data): array
+    {
+        $app = Schema::softwareApplication()
+            ->name($data['name'])
+            ->description($data['description']);
+
+        // Add application category
+        if (!empty($data['category'])) {
+            $app->applicationCategory($data['category']);
+        }
+
+        // Add operating system
+        if (!empty($data['operating_system'])) {
+            $app->operatingSystem($data['operating_system']);
+        }
+
+        // Add software version
+        if (!empty($data['version'])) {
+            $app->softwareVersion($data['version']);
+        }
+
+        // Add download URL
+        if (!empty($data['download_url'])) {
+            $app->downloadUrl($data['download_url']);
+        }
+
+        // Add install URL
+        if (!empty($data['install_url'])) {
+            $app->installUrl($data['install_url']);
+        }
+
+        // Add screenshot(s)
+        if (!empty($data['screenshots'])) {
+            $app->screenshot($data['screenshots']);
+        }
+
+        // Add feature list
+        if (!empty($data['features'])) {
+            $app->featureList($data['features']);
+        }
+
+        // Add software requirements
+        if (!empty($data['requirements'])) {
+            $app->softwareRequirements($data['requirements']);
+        }
+
+        // Add offers/pricing
+        if (!empty($data['offers'])) {
+            $offers = array_map(function($offer) {
+                $offerSchema = Schema::offer()
+                    ->price($offer['price'])
+                    ->priceCurrency($offer['currency'] ?? 'USD');
+
+                if (!empty($offer['availability'])) {
+                    $offerSchema->availability($offer['availability']);
+                }
+
+                return $offerSchema;
+            }, $data['offers']);
+            $app->offers($offers);
+        }
+
+        // Add aggregate rating
+        if (!empty($data['rating'])) {
+            $app->aggregateRating(
+                Schema::aggregateRating()
+                    ->ratingValue($data['rating']['value'])
+                    ->reviewCount($data['rating']['count'])
+                    ->bestRating($data['rating']['best'] ?? 5)
+                    ->worstRating($data['rating']['worst'] ?? 1)
+            );
+        }
+
+        // Add developer/author
+        if (!empty($data['developer'])) {
+            $app->author(
+                Schema::organization()->name($data['developer'])
+            );
+        }
+
+        // Add release date
+        if (!empty($data['release_date'])) {
+            $app->datePublished($data['release_date']);
+        }
+
+        // Add file size
+        if (!empty($data['file_size'])) {
+            $app->fileSize($data['file_size']);
+        }
+
+        return $app->toArray();
+    }
+
+    /**
+     * Generate Organization schema - For companies and organizations
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateOrganization(array $data): array
+    {
+        $org = Schema::organization()
+            ->name($data['name'])
+            ->description($data['description'] ?? '');
+
+        // Add logo
+        if (!empty($data['logo'])) {
+            $org->logo($data['logo']);
+        }
+
+        // Add URL
+        if (!empty($data['url'])) {
+            $org->url($data['url']);
+        }
+
+        // Add contact point
+        if (!empty($data['contact'])) {
+            $contactPoint = Schema::contactPoint()
+                ->contactType($data['contact']['type'] ?? 'customer service');
+
+            if (!empty($data['contact']['phone'])) {
+                $contactPoint->telephone($data['contact']['phone']);
+            }
+            if (!empty($data['contact']['email'])) {
+                $contactPoint->email($data['contact']['email']);
+            }
+
+            $org->contactPoint($contactPoint);
+        }
+
+        // Add address
+        if (!empty($data['address'])) {
+            $address = Schema::postalAddress();
+            if (!empty($data['address']['street'])) {
+                $address->streetAddress($data['address']['street']);
+            }
+            if (!empty($data['address']['city'])) {
+                $address->addressLocality($data['address']['city']);
+            }
+            if (!empty($data['address']['state'])) {
+                $address->addressRegion($data['address']['state']);
+            }
+            if (!empty($data['address']['postal_code'])) {
+                $address->postalCode($data['address']['postal_code']);
+            }
+            if (!empty($data['address']['country'])) {
+                $address->addressCountry($data['address']['country']);
+            }
+            $org->address($address);
+        }
+
+        // Add social profiles
+        if (!empty($data['social_profiles'])) {
+            $org->sameAs($data['social_profiles']);
+        }
+
+        // Add founding date
+        if (!empty($data['founding_date'])) {
+            $org->foundingDate($data['founding_date']);
+        }
+
+        // Add founders
+        if (!empty($data['founders'])) {
+            $founders = array_map(function($founder) {
+                return Schema::person()->name($founder);
+            }, $data['founders']);
+            $org->founder($founders);
+        }
+
+        // Add number of employees
+        if (!empty($data['employee_count'])) {
+            $org->numberOfEmployees(
+                Schema::quantitativeValue()->value($data['employee_count'])
+            );
+        }
+
+        return $org->toArray();
+    }
+
+    /**
+     * Generate Person schema - For individuals, authors, experts
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generatePerson(array $data): array
+    {
+        $person = Schema::person()
+            ->name($data['name']);
+
+        // Add job title
+        if (!empty($data['job_title'])) {
+            $person->jobTitle($data['job_title']);
+        }
+
+        // Add description/bio
+        if (!empty($data['description'])) {
+            $person->description($data['description']);
+        }
+
+        // Add image
+        if (!empty($data['image'])) {
+            $person->image($data['image']);
+        }
+
+        // Add email
+        if (!empty($data['email'])) {
+            $person->email($data['email']);
+        }
+
+        // Add URL
+        if (!empty($data['url'])) {
+            $person->url($data['url']);
+        }
+
+        // Add works for
+        if (!empty($data['works_for'])) {
+            $person->worksFor(
+                Schema::organization()->name($data['works_for'])
+            );
+        }
+
+        // Add credentials
+        if (!empty($data['credentials'])) {
+            foreach ($data['credentials'] as $credential) {
+                $person->hasCredential(
+                    Schema::educationalOccupationalCredential()->name($credential)
+                );
+            }
+        }
+
+        // Add social profiles
+        if (!empty($data['social_profiles'])) {
+            $person->sameAs($data['social_profiles']);
+        }
+
+        // Add alumni of
+        if (!empty($data['alumni_of'])) {
+            $person->alumniOf(
+                Schema::educationalOrganization()->name($data['alumni_of'])
+            );
+        }
+
+        // Add knows about (expertise)
+        if (!empty($data['expertise'])) {
+            $person->knowsAbout($data['expertise']);
+        }
+
+        return $person->toArray();
+    }
+
+    /**
+     * Generate Service schema - For services offered
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateService(array $data): array
+    {
+        $service = Schema::service()
+            ->name($data['name'])
+            ->description($data['description']);
+
+        // Add service type
+        if (!empty($data['service_type'])) {
+            $service->serviceType($data['service_type']);
+        }
+
+        // Add provider
+        if (!empty($data['provider'])) {
+            $service->provider(
+                Schema::organization()->name($data['provider'])
+            );
+        }
+
+        // Add area served
+        if (!empty($data['area_served'])) {
+            $service->areaServed($data['area_served']);
+        }
+
+        // Add audience
+        if (!empty($data['audience'])) {
+            $service->audience(
+                Schema::audience()->audienceType($data['audience'])
+            );
+        }
+
+        // Add offers/pricing
+        if (!empty($data['offers'])) {
+            $offers = array_map(function($offer) {
+                $offerSchema = Schema::offer()
+                    ->price($offer['price'])
+                    ->priceCurrency($offer['currency'] ?? 'USD');
+
+                if (!empty($offer['description'])) {
+                    $offerSchema->description($offer['description']);
+                }
+
+                return $offerSchema;
+            }, $data['offers']);
+            $service->offers($offers);
+        }
+
+        // Add service output
+        if (!empty($data['output'])) {
+            $service->serviceOutput($data['output']);
+        }
+
+        // Add category
+        if (!empty($data['category'])) {
+            $service->category($data['category']);
+        }
+
+        // Add brand
+        if (!empty($data['brand'])) {
+            $service->brand(Schema::brand()->name($data['brand']));
+        }
+
+        // Add aggregate rating
+        if (!empty($data['rating'])) {
+            $service->aggregateRating(
+                Schema::aggregateRating()
+                    ->ratingValue($data['rating']['value'])
+                    ->reviewCount($data['rating']['count'])
+            );
+        }
+
+        return $service->toArray();
+    }
+
+    /**
+     * Generate JobPosting schema - For job listings
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function generateJobPosting(array $data): array
+    {
+        $job = Schema::jobPosting()
+            ->title($data['title'])
+            ->description($data['description']);
+
+        // Add hiring organization
+        if (!empty($data['hiring_organization'])) {
+            $org = Schema::organization()->name($data['hiring_organization']['name']);
+            if (!empty($data['hiring_organization']['logo'])) {
+                $org->logo($data['hiring_organization']['logo']);
+            }
+            if (!empty($data['hiring_organization']['url'])) {
+                $org->url($data['hiring_organization']['url']);
+            }
+            $job->hiringOrganization($org);
+        }
+
+        // Add job location
+        if (!empty($data['location'])) {
+            $place = Schema::place();
+            if (!empty($data['location']['address'])) {
+                $address = Schema::postalAddress();
+                if (!empty($data['location']['address']['city'])) {
+                    $address->addressLocality($data['location']['address']['city']);
+                }
+                if (!empty($data['location']['address']['state'])) {
+                    $address->addressRegion($data['location']['address']['state']);
+                }
+                if (!empty($data['location']['address']['country'])) {
+                    $address->addressCountry($data['location']['address']['country']);
+                }
+                $place->address($address);
+            }
+            $job->jobLocation($place);
+        }
+
+        // Remote work option
+        if (!empty($data['remote'])) {
+            $job->jobLocationType('TELECOMMUTE');
+        }
+
+        // Add employment type
+        if (!empty($data['employment_type'])) {
+            $job->employmentType($data['employment_type']);
+        }
+
+        // Add date posted
+        $job->datePosted($data['date_posted'] ?? date('Y-m-d'));
+
+        // Add valid through
+        if (!empty($data['valid_through'])) {
+            $job->validThrough($data['valid_through']);
+        }
+
+        // Add salary
+        if (!empty($data['salary'])) {
+            $salary = Schema::monetaryAmount()
+                ->currency($data['salary']['currency'] ?? 'USD');
+
+            if (!empty($data['salary']['value'])) {
+                $salary->value($data['salary']['value']);
+            }
+            if (!empty($data['salary']['min']) && !empty($data['salary']['max'])) {
+                $salary->minValue($data['salary']['min']);
+                $salary->maxValue($data['salary']['max']);
+            }
+
+            $job->baseSalary($salary);
+        }
+
+        // Add responsibilities
+        if (!empty($data['responsibilities'])) {
+            $job->responsibilities($data['responsibilities']);
+        }
+
+        // Add qualifications
+        if (!empty($data['qualifications'])) {
+            $job->qualifications($data['qualifications']);
+        }
+
+        // Add skills
+        if (!empty($data['skills'])) {
+            $job->skills($data['skills']);
+        }
+
+        // Add education requirements
+        if (!empty($data['education_requirements'])) {
+            $job->educationRequirements($data['education_requirements']);
+        }
+
+        // Add experience requirements
+        if (!empty($data['experience_requirements'])) {
+            $job->experienceRequirements($data['experience_requirements']);
+        }
+
+        // Add industry
+        if (!empty($data['industry'])) {
+            $job->industry($data['industry']);
+        }
+
+        // Add application URL
+        if (!empty($data['apply_url'])) {
+            $job->applicationContact(
+                Schema::contactPoint()->url($data['apply_url'])
+            );
+        }
+
+        return $job->toArray();
+    }
+
+    /**
      * Convert schema array to JSON-LD string
      *
      * @param array<string, mixed> $schema
@@ -954,5 +1607,27 @@ class SchemaGenerator
         ];
 
         return json_encode(array_merge($jsonLd, $schema), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Generate multiple schemas and combine them
+     *
+     * @param array<array{type: string, data: array<string, mixed>}> $schemas
+     * @return string Combined JSON-LD
+     */
+    public function generateMultiple(array $schemas): string
+    {
+        $combined = [
+            '@context' => 'https://schema.org',
+            '@graph' => []
+        ];
+
+        foreach ($schemas as $schema) {
+            $generated = $this->generate($schema['type'], $schema['data']);
+            unset($generated['@context']);
+            $combined['@graph'][] = $generated;
+        }
+
+        return json_encode($combined, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 }

@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.4', '8.2', '8.3']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run tests
+        run: composer test
+
+      - name: Static analysis
+        if: matrix.php == '8.3'
+        run: composer phpstan
+
+      - name: Audit dependencies
+        if: matrix.php == '8.3'
+        run: composer audit
+
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify static site assets
+        run: |
+          test -f public/index.html
+          test -f public/css/site.css
+          grep -q 'href="/css/site.css"' public/index.html
+          grep -q "style-src 'self'" nginx/geooptimizer.dev.conf

@@ -12,11 +12,9 @@ use GEOOptimizer\Exceptions\ValidationException;
 class IndustryTemplateManager
 {
     private $templates = [];
-    private $config;
 
-    public function __construct(array $config = [])
+    public function __construct()
     {
-        $this->config = $config;
         $this->initializeTemplates();
     }
 
