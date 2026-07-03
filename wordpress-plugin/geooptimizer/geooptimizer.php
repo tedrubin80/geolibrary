@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: GeoOptimizer
- * Plugin URI: https://geooptimizer.dev
+ * Plugin URI: https://github.com/tedrubin80/geolibrary
  * Description: Generative Engine Optimization for WordPress — llms.txt, structured data, and GEO content analysis.
  * Version: 2.2.0
  * Author: GeoOptimizer
