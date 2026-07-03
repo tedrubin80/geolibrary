@@ -393,6 +393,32 @@
       overflow-x: auto;
     }
 
+    .product-download {
+      display: inline-block;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 0.625rem 0.875rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+      transition: background 0.12s, border-color 0.12s;
+    }
+
+    .product-download:hover {
+      background: var(--surface);
+      border-color: var(--primary-dim);
+    }
+
+    .product-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-top: 0.75rem;
+      margin-bottom: 0;
+    }
+
     /* ── Footer ── */
     .site-footer {
       border-top: 1px solid var(--border);

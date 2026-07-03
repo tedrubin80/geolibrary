@@ -30,10 +30,13 @@ Install the plugin from the release zip (includes bundled PHP dependencies) or r
 
 == Installation ==
 
-1. Upload the plugin zip via **Plugins → Add New → Upload Plugin**, or install from this repository's release artifact.
-2. Activate **GeoOptimizer**.
-3. Open **Settings → GEO Optimizer** and enter your business details.
-4. Visit `https://yoursite.example/llms.txt` to confirm output.
+1. Download the plugin zip from the [GitHub releases page](https://github.com/tedrubin80/geolibrary/releases/latest/download/geooptimizer-wordpress-plugin.zip).
+2. In wp-admin, go to **Plugins → Add New → Upload Plugin**, choose the zip, and install.
+3. Activate **GeoOptimizer**.
+4. Open **Settings → GEO Optimizer** and enter your business details.
+5. Visit `https://yoursite.example/llms.txt` to confirm output.
+
+This plugin is not yet available from the WordPress.org plugin directory.
 
 == Frequently Asked Questions ==
 

@@ -78,12 +78,18 @@ tools/build.php               Build library / plugin zip artifacts
 
 ## WordPress plugin
 
+Download the latest release zip (includes bundled dependencies):
+
+**[Download geooptimizer-wordpress-plugin.zip](https://github.com/tedrubin80/geolibrary/releases/latest/download/geooptimizer-wordpress-plugin.zip)**
+
+In wp-admin: **Plugins → Add New → Upload Plugin**, upload the zip, activate, then open **Settings → GEO Optimizer** and visit `/llms.txt` on your site.
+
+The plugin is not on WordPress.org yet. For local development:
+
 ```bash
 cd wordpress-plugin/geooptimizer
 composer install
 ```
-
-Activate **GeoOptimizer** in wp-admin, configure business details under **Settings → GEO Optimizer**, and visit `/llms.txt` on your site.
 
 Build a distributable zip:
 

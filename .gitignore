@@ -30,6 +30,9 @@ Thumbs.db
 /build/
 /dist/
 
+# Server config (lives on the host under /etc/nginx, not in the repo)
+/nginx/
+
 # Local editor / agent config (not part of the product)
 .claude/
 
