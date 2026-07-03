@@ -2,7 +2,7 @@
 
 This guide covers releasing the PHP library to Packagist and the WordPress plugin to WordPress.org.
 
-Current release version: **2.2.1**
+Current release version: **2.2.2**
 
 ## Before you publish
 

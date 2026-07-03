@@ -8,7 +8,7 @@ GeoOptimizer is a PHP library and WordPress plugin for **Generative Engine Optim
 
 - **Website:** [geooptimizer.dev](https://geooptimizer.dev)
 - **Repository:** [github.com/tedrubin80/geolibrary](https://github.com/tedrubin80/geolibrary)
-- **Current version:** `2.2.1`
+- **Current version:** `2.2.2`
 
 ---
 
