@@ -1,6 +1,6 @@
 {
     "name": "geooptimizer/php-geo-optimizer",
-    "description": "The first comprehensive PHP library for Generative Engine Optimization (GEO) - optimizing websites for AI-powered search engines",
+    "description": "A PHP library for Generative Engine Optimization (GEO) — llms.txt, Schema.org structured data, and AI search readiness tooling.",
     "type": "library",
     "license": "MIT",
     "keywords": ["seo", "geo", "ai-search", "optimization", "llm", "generative-engine-optimization"],

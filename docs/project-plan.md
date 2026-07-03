@@ -139,7 +139,7 @@ Release artifacts, readme, and workflows are ready. These steps require Packagis
 | Channel | Status | Action |
 |---------|--------|--------|
 | GitHub releases | Done (v2.2.0) | Automatic on tag push |
-| Packagist | Not submitted | Submit repo at [packagist.org](https://packagist.org/) — see [publishing.md](publishing.md) |
+| Packagist | Live | [packagist.org/packages/geooptimizer/php-geo-optimizer](https://packagist.org/packages/geooptimizer/php-geo-optimizer) |
 | WordPress.org | Not submitted | Upload release zip — see [publishing.md](publishing.md) |
 
 ---
@@ -156,7 +156,7 @@ Release artifacts, readme, and workflows are ready. These steps require Packagis
 - [x] Add WordPress.org readme and publishing docs
 - [x] Add GitHub release workflow and version tags through v2.2.0
 - [x] Add publish verification script (`tools/publish-verify.php`)
-- [ ] Publish to Packagist (manual — see [publishing.md](publishing.md))
+- [x] Publish to Packagist — [geooptimizer/php-geo-optimizer](https://packagist.org/packages/geooptimizer/php-geo-optimizer)
 - [ ] Submit WordPress plugin to wordpress.org (manual — see [publishing.md](publishing.md))
 
 ### Phase 2 — Developer experience

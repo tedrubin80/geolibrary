@@ -39,17 +39,15 @@ Latest release: [github.com/tedrubin80/geolibrary/releases](https://github.com/t
 
 ## Packagist (PHP library)
 
-1. Create a [Packagist](https://packagist.org/) account (if needed).
-2. Submit the package: `https://github.com/tedrubin80/geolibrary`
-3. Packagist reads `composer.json` (`geooptimizer/php-geo-optimizer`).
-4. Enable the GitHub webhook (Packagist shows the hook URL after submission).
-5. Push a version tag — Packagist auto-updates when the webhook is configured.
+Package: [packagist.org/packages/geooptimizer/php-geo-optimizer](https://packagist.org/packages/geooptimizer/php-geo-optimizer)
 
-Install after publish:
+Install:
 
 ```bash
 composer require geooptimizer/php-geo-optimizer:^2.2
 ```
+
+Packagist auto-updates from GitHub when the webhook is configured. Update the `description` field in `composer.json` for listing copy changes.
 
 ## WordPress.org
 

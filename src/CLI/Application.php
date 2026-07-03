@@ -83,6 +83,6 @@ LOGO;
             '<info>%s</info> version <comment>%s</comment>',
             $this->getName(),
             $this->getVersion()
-        ) . PHP_EOL . 'The first comprehensive PHP library for AI search optimization';
+        ) . PHP_EOL . 'PHP library for Generative Engine Optimization (GEO)';
     }
 }

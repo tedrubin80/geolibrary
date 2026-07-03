@@ -1,6 +1,7 @@
 # GeoOptimizer
 
 [![CI](https://github.com/tedrubin80/geolibrary/actions/workflows/ci.yml/badge.svg)](https://github.com/tedrubin80/geolibrary/actions/workflows/ci.yml)
+[![Packagist Version](https://img.shields.io/packagist/v/geooptimizer/php-geo-optimizer)](https://packagist.org/packages/geooptimizer/php-geo-optimizer)
 [![License: MIT](https://img.shields.io/github/license/tedrubin80/geolibrary)](https://github.com/tedrubin80/geolibrary/blob/main/LICENSE)
 [![PHP](https://img.shields.io/badge/php-%3E%3D7.4-777bb4)](composer.json)
 
