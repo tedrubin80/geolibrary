@@ -140,6 +140,7 @@ class InfluenceBotDetector
 
         // Analyze with ContentAnalyzer
         $analysis = $this->contentAnalyzer->analyzeForGEO($content);
+        $geoReadiness = $this->scorer->calculate(['content' => $content]);
 
         // Check for AI generation markers
         $aiMarkers = [
@@ -157,8 +158,12 @@ class InfluenceBotDetector
         }
 
         // Check against GEO readiness - synthetic content often scores too perfectly
-        if (!empty($data['geo_score']) && $data['geo_score'] > 95) {
+        if ($geoReadiness['overall_score'] > 95) {
             $syntheticScore += 10; // Suspiciously perfect GEO optimization
+        }
+
+        if (($analysis['overall_score'] ?? 0) < 20) {
+            $syntheticScore += 5;
         }
 
         // Check for template patterns

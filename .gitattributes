@@ -1,0 +1,13 @@
+/tests export-ignore
+/docs export-ignore
+/dist export-ignore
+/coverage export-ignore
+/.github export-ignore
+/wordpress-plugin export-ignore
+/public export-ignore
+/tools export-ignore
+/.phpunit.result.cache export-ignore
+/phpunit.xml export-ignore
+/phpstan.neon.dist export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore

@@ -29,7 +29,7 @@ use GEOOptimizer\Exceptions\GEOException;
  */
 class GEOOptimizer
 {
-    public const VERSION = '2.0.0';
+    public const VERSION = Version::VERSION;
 
     private array $config;
     private Generator $llmsTxtGenerator;
@@ -166,7 +166,22 @@ class GEOOptimizer
      */
     public function getAvailableIndustries(): array
     {
-        return $this->templateManager->getAvailableTemplates();
+        return $this->templateManager->getAvailableIndustries();
+    }
+
+    /**
+     * Generate JSON-LD structured data markup for embedding in HTML.
+     *
+     * @param array<string, mixed> $businessData
+     */
+    public function generateStructuredData(array $businessData): string
+    {
+        $data = $this->normalizeBusinessData($businessData);
+        $schemaType = $this->resolveSchemaType($data);
+        $schema = $this->generateSchema($schemaType, $data);
+        $jsonLd = $this->schemaGenerator->toJsonLd($schema);
+
+        return '<script type="application/ld+json">' . $jsonLd . '</script>' . PHP_EOL;
     }
 
     /**
@@ -198,7 +213,7 @@ class GEOOptimizer
      *
      * @param string $identifier Business name or domain
      * @param int $days Number of days to look back
-     * @return array<string, mixed>
+     * @return list<array<string, mixed>>
      */
     public function getCitationHistory(string $identifier, int $days = 30): array
     {
@@ -461,6 +476,51 @@ class GEOOptimizer
         $this->platformAdapters['google'] = new GoogleAIAdapter([
             'api_key' => $platforms['google']['api_key'] ?? ''
         ]);
+    }
+
+    /**
+     * @param array<string, mixed> $businessData
+     * @return array<string, mixed>
+     */
+    private function normalizeBusinessData(array $businessData): array
+    {
+        $data = $businessData;
+
+        if (isset($data['business_name']) && !isset($data['name'])) {
+            $data['name'] = $data['business_name'];
+        }
+
+        if (!empty($data['location']) && empty($data['address'])) {
+            $data['address'] = $data['location'];
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function resolveSchemaType(array $data): string
+    {
+        if (!empty($data['schema_type'])) {
+            return (string) $data['schema_type'];
+        }
+
+        if (!empty($data['business_type'])) {
+            return (string) $data['business_type'];
+        }
+
+        if (!empty($data['industry'])) {
+            try {
+                $industrySchema = $this->templateManager->getIndustrySchema($data, (string) $data['industry']);
+
+                return (string) $industrySchema['primary_schema'];
+            } catch (\Exception $e) {
+                // Fall through to LocalBusiness.
+            }
+        }
+
+        return 'LocalBusiness';
     }
 
     /**

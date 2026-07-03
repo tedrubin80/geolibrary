@@ -138,6 +138,12 @@ class GEOReadinessScore
             }
         }
 
+        if (!empty($data['schema_type'])
+            && in_array($data['schema_type'], $this->schemaGenerator->getSupportedTypes(), true)
+        ) {
+            $score += 10;
+        }
+
         return min(100, $score);
     }
 

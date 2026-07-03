@@ -142,6 +142,38 @@ class GEOOptimizerTest extends TestCase
         $this->assertStringContainsString('{{ business_name }}', $template);
     }
 
+    public function testGetAvailableIndustries()
+    {
+        $industries = $this->geoOptimizer->getAvailableIndustries();
+
+        $this->assertIsArray($industries);
+        $this->assertContains('restaurant', $industries);
+        $this->assertContains('business', $industries);
+    }
+
+    public function testGenerateStructuredData()
+    {
+        $markup = $this->geoOptimizer->generateStructuredData($this->sampleBusinessData);
+
+        $this->assertStringContainsString('<script type="application/ld+json">', $markup);
+        $this->assertStringContainsString('Joe\'s Pizza', $markup);
+        $this->assertStringContainsString('"@type": "Restaurant"', $markup);
+    }
+
+    public function testGenerateStructuredDataUsesIndustryFallback()
+    {
+        $data = array_merge($this->sampleBusinessData, [
+            'industry' => 'legal',
+            'business_type' => null,
+            'schema_type' => null,
+        ]);
+        unset($data['business_type'], $data['schema_type']);
+
+        $markup = $this->geoOptimizer->generateStructuredData($data);
+
+        $this->assertStringContainsString('"@type": "LegalService"', $markup);
+    }
+
     public function testOptimizeComplete()
     {
         $result = $this->geoOptimizer->optimize($this->sampleBusinessData);

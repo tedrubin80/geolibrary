@@ -52,7 +52,7 @@ class MemoryCache implements CacheInterface
     public function set(string $key, mixed $value, null|int|\DateInterval $ttl = null): bool
     {
         $ttl = $this->normalizeTtl($ttl);
-        $expiry = $ttl === null ? null : time() + $ttl;
+        $expiry = time() + $ttl;
 
         $this->cache[$key] = [
             'value' => $value,
@@ -137,7 +137,7 @@ class MemoryCache implements CacheInterface
     /**
      * Normalize TTL value
      */
-    private function normalizeTtl(null|int|\DateInterval $ttl): ?int
+    private function normalizeTtl(null|int|\DateInterval $ttl): int
     {
         if ($ttl === null) {
             return $this->defaultTtl;

@@ -125,6 +125,15 @@ class TrackerDetector
      */
     private function detectMissingGEOSignals(array $data): float
     {
+        if (!empty($data['content'])) {
+            $analysis = $this->contentAnalyzer->analyzeForGEO((string) $data['content']);
+            $readiness = $this->scorer->calculate(['content' => (string) $data['content']]);
+
+            if (($analysis['overall_score'] ?? 0) < 30 || ($readiness['overall_score'] ?? 0) < 30) {
+                return 75.0;
+            }
+        }
+
         if (empty($data['interaction_data'])) {
             return 50.0; // Suspicious if no interaction data
         }
@@ -149,7 +158,7 @@ class TrackerDetector
             }
         }
 
-        $humanScore = $totalSignals > 0 ? ($humanSignals / $totalSignals) : 0;
+        $humanScore = $humanSignals / $totalSignals;
 
         // Invert score - lower human signals = higher threat
         return (1 - $humanScore) * 100;

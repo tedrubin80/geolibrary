@@ -107,6 +107,8 @@ class CitationTracker implements TrackerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return list<array<string, mixed>>
      */
     public function getHistory(string $identifier, int $days = 30): array
     {
@@ -261,7 +263,7 @@ class CitationTracker implements TrackerInterface
 
         $overallScore = 0;
         foreach ($factors as $factor => $score) {
-            $overallScore += $score * ($weights[$factor] ?? 0);
+            $overallScore += $score * $weights[$factor];
         }
 
         return [

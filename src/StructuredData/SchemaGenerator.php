@@ -55,7 +55,24 @@ class SchemaGenerator
             throw new ValidationException("Generator method not found for type: {$type}");
         }
 
-        return $this->$methodName($data);
+        return $this->$methodName($this->normalizeData($data));
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function normalizeData(array $data): array
+    {
+        if (empty($data['business_name']) && !empty($data['name'])) {
+            $data['business_name'] = $data['name'];
+        }
+
+        if (!isset($data['description'])) {
+            $data['description'] = '';
+        }
+
+        return $data;
     }
 
     /**

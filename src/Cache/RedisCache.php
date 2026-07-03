@@ -111,7 +111,7 @@ class RedisCache implements CacheInterface
 
             $encoded = CacheSerializer::encode($value);
 
-            if ($ttl === null || $ttl <= 0) {
+            if ($ttl <= 0) {
                 return $redis->set($this->prefix . $key, $encoded);
             }
 
@@ -128,7 +128,7 @@ class RedisCache implements CacheInterface
     {
         try {
             $redis = $this->getRedis();
-            return $redis->del($this->prefix . $key) > 0;
+            return $this->toRedisInt($redis->del($this->prefix . $key)) > 0;
         } catch (\Exception $e) {
             return false;
         }
@@ -148,7 +148,7 @@ class RedisCache implements CacheInterface
                 return true;
             }
 
-            return $redis->del($keys) > 0;
+            return $this->toRedisInt($redis->del($keys)) > 0;
         } catch (\Exception $e) {
             return false;
         }
@@ -161,7 +161,7 @@ class RedisCache implements CacheInterface
     {
         try {
             $redis = $this->getRedis();
-            return $redis->exists($this->prefix . $key) > 0;
+            return $this->toRedisInt($redis->exists($this->prefix . $key)) > 0;
         } catch (\Exception $e) {
             return false;
         }
@@ -222,7 +222,7 @@ class RedisCache implements CacheInterface
             foreach ($values as $key => $value) {
                 $encoded = CacheSerializer::encode($value);
 
-                if ($ttl === null || $ttl <= 0) {
+                if ($ttl <= 0) {
                     $redis->set($this->prefix . $key, $encoded);
                 } else {
                     $redis->setex($this->prefix . $key, $ttl, $encoded);
@@ -253,7 +253,7 @@ class RedisCache implements CacheInterface
                 return true;
             }
 
-            return $redis->del($prefixedKeys) > 0;
+            return $this->toRedisInt($redis->del($prefixedKeys)) > 0;
         } catch (\Exception $e) {
             return false;
         }
@@ -262,7 +262,7 @@ class RedisCache implements CacheInterface
     /**
      * Normalize TTL value
      */
-    private function normalizeTtl(null|int|\DateInterval $ttl): ?int
+    private function normalizeTtl(null|int|\DateInterval $ttl): int
     {
         if ($ttl === null) {
             return $this->defaultTtl;
@@ -276,6 +276,11 @@ class RedisCache implements CacheInterface
         }
 
         return $ttl;
+    }
+
+    private function toRedisInt(mixed $value): int
+    {
+        return is_int($value) ? $value : (int) $value;
     }
 
     /**

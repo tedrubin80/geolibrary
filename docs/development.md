@@ -18,6 +18,10 @@ composer phpstan
 composer audit
 ```
 
+PHPStan analyzes most of `src/` (WordPress stubs enabled for the plugin integration). `SchemaGenerator` and CLI commands are excluded until Spatie/Symfony typing issues are resolved.
+
+WordPress plugin helpers are covered with Brain Monkey unit tests under `tests/Unit/Integrations/WordPress/`.
+
 ## Build artifacts
 
 ```bash

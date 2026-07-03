@@ -1,9 +1,9 @@
 parameters:
     level: 5
+    bootstrapFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
     paths:
-        - src/Http
-        - src/Cache/CacheSerializer.php
-        - src/Exceptions
-        - src/Analysis
-        - src/LLMSTxt
-        - src/Templates
+        - src
+    excludePaths:
+        - src/CLI
+        - src/StructuredData/SchemaGenerator.php

@@ -23,7 +23,7 @@ interface TrackerInterface
      *
      * @param string $identifier Domain or business name
      * @param int $days Number of days to look back
-     * @return array<string, mixed> Historical data
+     * @return list<array<string, mixed>>
      */
     public function getHistory(string $identifier, int $days = 30): array;
 

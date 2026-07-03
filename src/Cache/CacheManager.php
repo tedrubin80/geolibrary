@@ -109,7 +109,6 @@ class CacheManager
     /**
      * Cache a callable's result
      *
-     * @param array<string, mixed> $params
      * @throws CacheException
      */
     public static function remember(string $key, callable $callback, ?int $ttl = null): mixed

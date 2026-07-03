@@ -19,7 +19,7 @@ use GEOOptimizer\CLI\Commands\CacheClearCommand;
  */
 class Application extends ConsoleApplication
 {
-    const VERSION = '1.0.0';
+    const VERSION = \GEOOptimizer\Version::VERSION;
     const NAME = 'GEO Optimizer';
 
     public function __construct()

@@ -74,7 +74,7 @@ class FileCache implements CacheInterface
         $filename = $this->getFilename($key);
 
         $ttl = $this->normalizeTtl($ttl);
-        $expiry = $ttl === null ? null : time() + $ttl;
+        $expiry = time() + $ttl;
 
         $data = [
             'value' => $value,
@@ -234,7 +234,7 @@ class FileCache implements CacheInterface
     /**
      * Normalize TTL value
      */
-    private function normalizeTtl(null|int|\DateInterval $ttl): ?int
+    private function normalizeTtl(null|int|\DateInterval $ttl): int
     {
         if ($ttl === null) {
             return $this->defaultTtl;

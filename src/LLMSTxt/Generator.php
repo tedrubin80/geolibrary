@@ -46,6 +46,10 @@ class Generator
      */
     public function generate(array $businessData, string $template = 'business'): string
     {
+        if (isset($businessData['business_name']) && !isset($businessData['name'])) {
+            $businessData['name'] = $businessData['business_name'];
+        }
+
         $this->validateBusinessData($businessData);
         
         $templateData = $this->prepareTemplateData($businessData);
