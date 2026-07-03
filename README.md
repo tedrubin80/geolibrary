@@ -23,6 +23,7 @@ Generative Engine Optimization is the practice of structuring web content so AI-
 - **WordPress plugin** — Admin UI, automatic `llms.txt` endpoint, structured data in `wp_head`
 - **Framework integrations** — Laravel service provider, Symfony bundle
 - **REST API** — Automation endpoints with optional API key auth and rate limiting
+- **Premium WordPress tier** — Dashboard, bulk analysis, and competitor comparison with license key
 
 ## Requirements
 

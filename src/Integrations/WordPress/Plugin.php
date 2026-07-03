@@ -38,6 +38,8 @@ final class Plugin
         add_action('wp_ajax_geo_generate_llms_txt', [$this, 'ajaxGenerateLLMSTxt']);
         add_action('wp_ajax_geo_analyze_content', [$this, 'ajaxAnalyzeContent']);
 
+        (new \GEOOptimizer\Integrations\WordPress\Premium\PremiumModule())->register();
+
         register_activation_hook($this->pluginFile(), [$this, 'activate']);
         register_deactivation_hook($this->pluginFile(), [$this, 'deactivate']);
     }
@@ -175,6 +177,7 @@ final class Plugin
             'hours' => $this->parseHoursList((string) ($input['hours'] ?? '')),
             'enable_structured_data' => !empty($input['enable_structured_data']),
             'enable_llms_txt' => !empty($input['enable_llms_txt']),
+            'license_key' => sanitize_text_field($input['license_key'] ?? ''),
         ];
     }
 
@@ -493,6 +496,7 @@ final class Plugin
             'hours' => [],
             'enable_structured_data' => true,
             'enable_llms_txt' => true,
+            'license_key' => '',
         ];
     }
 

@@ -438,6 +438,48 @@ class GEOOptimizer
     }
 
     /**
+     * @param array<int, array{id?: string, content: string, metadata?: array<string, mixed>}> $items
+     * @return array<string, mixed>
+     */
+    public function bulkAnalyze(array $items): array
+    {
+        return (new \GEOOptimizer\Analysis\BulkSiteAnalyzer($this->contentAnalyzer))->analyze($items);
+    }
+
+    /**
+     * @param array<int, array{name: string, content: string, metadata?: array<string, mixed>}> $competitors
+     * @param array<string, mixed> $options
+     * @return array<string, mixed>
+     */
+    public function compareCompetitors(
+        string $primaryName,
+        string $primaryContent,
+        array $competitors,
+        array $options = []
+    ): array {
+        return (new \GEOOptimizer\Analysis\CompetitorAnalyzer($this->contentAnalyzer))
+            ->compare($primaryName, $primaryContent, $competitors, $options);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getCitationDashboard(string $identifier, int $days = 30): array
+    {
+        return (new \GEOOptimizer\Analytics\CitationDashboard($this->citationTracker))
+            ->getDashboard($identifier, $days);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function listTrackedIdentifiers(): array
+    {
+        return (new \GEOOptimizer\Analytics\CitationDashboard($this->citationTracker))
+            ->listIdentifiers();
+    }
+
+    /**
      * Initialize components
      */
     private function initializeComponents(): void

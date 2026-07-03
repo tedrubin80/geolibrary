@@ -41,9 +41,9 @@ class PluginHooksTest extends TestCase
     public function testRegisterAddsCoreHooks(): void
     {
         Actions\expectAdded('init')->atLeast()->once();
-        Actions\expectAdded('admin_menu')->once();
-        Actions\expectAdded('admin_init')->once();
-        Actions\expectAdded('admin_enqueue_scripts')->once();
+        Actions\expectAdded('admin_menu')->twice();
+        Actions\expectAdded('admin_init')->twice();
+        Actions\expectAdded('admin_enqueue_scripts')->twice();
         Actions\expectAdded('wp_head')->once();
         Actions\expectAdded('save_post')->once();
         Actions\expectAdded('template_redirect')->once();

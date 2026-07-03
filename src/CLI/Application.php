@@ -11,6 +11,8 @@ use GEOOptimizer\CLI\Commands\SchemaCommand;
 use GEOOptimizer\CLI\Commands\ValidateCommand;
 use GEOOptimizer\CLI\Commands\ScoreCommand;
 use GEOOptimizer\CLI\Commands\CacheClearCommand;
+use GEOOptimizer\CLI\Commands\BulkAnalyzeCommand;
+use GEOOptimizer\CLI\Commands\CompareCommand;
 use GEOOptimizer\CLI\Commands\IndustriesCommand;
 use GEOOptimizer\CLI\Commands\ReportCommand;
 
@@ -45,6 +47,8 @@ class Application extends ConsoleApplication
             new ScoreCommand(),
             new ReportCommand(),
             new IndustriesCommand(),
+            new BulkAnalyzeCommand(),
+            new CompareCommand(),
             new CacheClearCommand(),
         ]);
     }

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoOptimizer Dashboard</title>
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a href="/" class="logo"><span class="logo-mark" aria-hidden="true">G</span>GeoOptimizer Dashboard</a>
+      <nav class="site-nav" aria-label="Dashboard">
+        <a href="/">Home</a>
+        <a href="https://github.com/tedrubin80/geolibrary/blob/main/docs/integrations.md" rel="noopener noreferrer">API Docs</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div class="wrap">
+      <section class="dashboard-panel">
+        <h1>Citation tracking</h1>
+        <p class="dashboard-desc">Connect to the GeoOptimizer API to inspect citation history, run bulk analysis, and compare competitors.</p>
+        <form id="dashboard-settings" class="dashboard-form">
+          <label>
+            API base URL
+            <input type="url" id="api-base" value="/api" required>
+          </label>
+          <label>
+            API key
+            <input type="password" id="api-key" placeholder="Optional unless GEO_API_KEY is set">
+          </label>
+          <label>
+            Identifier
+            <input type="text" id="identifier" placeholder="example.com or business name" required>
+          </label>
+          <button type="submit" class="dashboard-button">Load dashboard</button>
+          <button type="button" id="track-now" class="dashboard-button dashboard-button--secondary">Run tracking</button>
+        </form>
+      </section>
+
+      <section id="dashboard-output" class="dashboard-panel" hidden>
+        <h2>Overview</h2>
+        <div id="overview-metrics" class="metric-grid"></div>
+        <h3>History</h3>
+        <pre id="history-output" class="dashboard-pre"></pre>
+      </section>
+
+      <section class="dashboard-panel">
+        <h2>Bulk analysis</h2>
+        <p class="dashboard-desc">Provide one JSON item per line: <code>{"id":"home","content":"..."}</code></p>
+        <textarea id="bulk-items" rows="8" class="dashboard-textarea" placeholder='{"id":"home","content":"Acme Coffee is a specialty roaster."}'></textarea>
+        <button type="button" id="bulk-run" class="dashboard-button">Run bulk analyze</button>
+        <pre id="bulk-output" class="dashboard-pre"></pre>
+      </section>
+
+      <section class="dashboard-panel">
+        <h2>Competitor comparison</h2>
+        <label>
+          Primary content
+          <textarea id="primary-content" rows="4" class="dashboard-textarea"></textarea>
+        </label>
+        <label>
+          Competitors JSON array
+          <textarea id="competitors-json" rows="6" class="dashboard-textarea" placeholder='[{"name":"Competitor A","content":"..."}]'></textarea>
+        </label>
+        <button type="button" id="compare-run" class="dashboard-button">Compare</button>
+        <pre id="compare-output" class="dashboard-pre"></pre>
+      </section>
+    </div>
+  </main>
+
+  <script src="/dashboard/dashboard.js"></script>
+</body>
+</html>

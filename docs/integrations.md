@@ -85,11 +85,36 @@ Routes:
 | POST | `/v1/optimize` | Full optimization |
 | POST | `/v1/analyze` | Content analysis |
 | POST | `/v1/llms-txt` | Generate llms.txt |
+| GET | `/v1/dashboard` | Citation dashboard data (`?identifier=` ) |
+| GET | `/v1/identifiers` | Tracked citation identifiers |
+| POST | `/v1/track` | Run citation tracking |
+| POST | `/v1/bulk-analyze` | Analyze multiple content items |
+| POST | `/v1/compare` | Compare primary content vs competitors |
 | POST | `/v1/schema` | Generate schema + JSON-LD |
+
+## Web dashboard
+
+Serve the `public/` directory from your web server to access the dashboard UI at `/dashboard/`.
+
+The dashboard uses the REST API for citation tracking, bulk analysis, and competitor comparison.
+
+## WordPress premium tier
+
+Unlock premium features by entering a license key under **Settings → GEO Optimizer**.
+
+Demo key: `GEO-DEMO-9444`
+
+Premium unlocks:
+
+- **GEO Dashboard** admin page
+- Bulk analysis from wp-admin
+- Competitor comparison tools
 
 ## CLI additions
 
 ```bash
 geo-optimizer industries
 geo-optimizer report ./public --format json
+geo-optimizer bulk-analyze --file items.json
+geo-optimizer compare --file compare.json
 ```

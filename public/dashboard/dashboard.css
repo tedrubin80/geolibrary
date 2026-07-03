@@ -1,0 +1,92 @@
+.dashboard {
+  padding: 2rem 0 4rem;
+}
+
+.dashboard-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-desc {
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.dashboard-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard-form label,
+.dashboard-panel label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+}
+
+.dashboard-form input,
+.dashboard-textarea {
+  width: 100%;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+}
+
+.dashboard-button {
+  appearance: none;
+  border: 0;
+  border-radius: var(--r);
+  background: var(--primary);
+  color: white;
+  padding: 0.65rem 1rem;
+  font: inherit;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.dashboard-button--secondary {
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--border);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.metric-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 1rem;
+}
+
+.metric-card strong {
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.dashboard-pre {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 1rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.dashboard-textarea {
+  margin-bottom: 1rem;
+  min-height: 120px;
+}

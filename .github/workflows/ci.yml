@@ -55,5 +55,7 @@ jobs:
         run: |
           test -f public/index.html
           test -f public/css/site.css
+          test -f public/dashboard/index.html
+          test -f public/dashboard/dashboard.js
           grep -q 'href="/css/site.css"' public/index.html
           grep -q "style-src 'self'" nginx/geooptimizer.dev.conf

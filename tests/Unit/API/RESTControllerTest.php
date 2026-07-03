@@ -78,4 +78,43 @@ class RESTControllerTest extends TestCase
         $payload = json_decode($response['body'], true);
         $this->assertStringContainsString('Acme Coffee', $payload['data']['content']);
     }
+
+    public function testBulkAnalyzeEndpoint(): void
+    {
+        $response = $this->controller->handle(
+            'POST',
+            '/v1/bulk-analyze',
+            ['x-api-key' => 'secret-key'],
+            json_encode([
+                'items' => [
+                    ['id' => 'a', 'content' => 'Certified professional coffee roaster in San Francisco with award-winning espresso.'],
+                    ['id' => 'b', 'content' => 'Coffee.'],
+                ],
+            ])
+        );
+
+        $this->assertSame(200, $response['status']);
+        $payload = json_decode($response['body'], true);
+        $this->assertSame(2, $payload['data']['count']);
+    }
+
+    public function testCompareEndpoint(): void
+    {
+        $response = $this->controller->handle(
+            'POST',
+            '/v1/compare',
+            ['x-api-key' => 'secret-key'],
+            json_encode([
+                'primary_name' => 'Acme',
+                'primary_content' => 'Certified professional coffee roaster in San Francisco with award-winning espresso.',
+                'competitors' => [
+                    ['name' => 'Rival', 'content' => 'Coffee shop.'],
+                ],
+            ])
+        );
+
+        $this->assertSame(200, $response['status']);
+        $payload = json_decode($response['body'], true);
+        $this->assertSame('Acme', $payload['data']['primary']['name']);
+    }
 }

@@ -79,7 +79,11 @@ class RESTController
             ['method' => 'POST', 'path' => '/v1/optimize', 'description' => 'Run full GEO optimization'],
             ['method' => 'POST', 'path' => '/v1/analyze', 'description' => 'Analyze content for GEO readiness'],
             ['method' => 'POST', 'path' => '/v1/llms-txt', 'description' => 'Generate llms.txt content'],
-            ['method' => 'POST', 'path' => '/v1/schema', 'description' => 'Generate Schema.org JSON-LD'],
+            ['method' => 'GET', 'path' => '/v1/dashboard', 'description' => 'Citation tracking dashboard data'],
+            ['method' => 'GET', 'path' => '/v1/identifiers', 'description' => 'List tracked citation identifiers'],
+            ['method' => 'POST', 'path' => '/v1/track', 'description' => 'Run citation tracking for an identifier'],
+            ['method' => 'POST', 'path' => '/v1/bulk-analyze', 'description' => 'Analyze multiple content items'],
+            ['method' => 'POST', 'path' => '/v1/compare', 'description' => 'Compare primary content against competitors'],
         ];
     }
 
@@ -133,6 +137,25 @@ class RESTController
             ]);
         }
 
+        if ($method === 'GET' && $path === '/v1/identifiers') {
+            return ApiResponse::success([
+                'identifiers' => $this->geoOptimizer->listTrackedIdentifiers(),
+            ]);
+        }
+
+        if ($method === 'GET' && $path === '/v1/dashboard') {
+            $identifier = (string) ($query['identifier'] ?? '');
+            if ($identifier === '') {
+                return ApiResponse::error('identifier query parameter is required', 422, 'validation_error');
+            }
+
+            $days = (int) ($query['days'] ?? 30);
+
+            return ApiResponse::success(
+                $this->geoOptimizer->getCitationDashboard($identifier, $days > 0 ? $days : 30)
+            );
+        }
+
         $payload = $this->decodeBody($body);
 
         if ($method === 'POST' && $path === '/v1/optimize') {
@@ -163,6 +186,42 @@ class RESTController
                     'business_type' => $type,
                 ])),
             ]);
+        }
+
+        if ($method === 'POST' && $path === '/v1/track') {
+            $identifier = (string) ($payload['identifier'] ?? '');
+            if ($identifier === '') {
+                return ApiResponse::error('identifier is required', 422, 'validation_error');
+            }
+
+            $options = is_array($payload['options'] ?? null) ? $payload['options'] : [];
+
+            return ApiResponse::success($this->geoOptimizer->trackCitations($identifier, $options));
+        }
+
+        if ($method === 'POST' && $path === '/v1/bulk-analyze') {
+            $items = $payload['items'] ?? null;
+            if (!is_array($items)) {
+                return ApiResponse::error('items array is required', 422, 'validation_error');
+            }
+
+            return ApiResponse::success($this->geoOptimizer->bulkAnalyze($items));
+        }
+
+        if ($method === 'POST' && $path === '/v1/compare') {
+            $primaryName = (string) ($payload['primary_name'] ?? $payload['name'] ?? 'Primary');
+            $primaryContent = (string) ($payload['primary_content'] ?? $payload['content'] ?? '');
+            $competitors = $payload['competitors'] ?? null;
+
+            if (!is_array($competitors)) {
+                return ApiResponse::error('competitors array is required', 422, 'validation_error');
+            }
+
+            $options = is_array($payload['options'] ?? null) ? $payload['options'] : [];
+
+            return ApiResponse::success(
+                $this->geoOptimizer->compareCompetitors($primaryName, $primaryContent, $competitors, $options)
+            );
         }
 
         return ApiResponse::error('Route not found', 404, 'not_found');
