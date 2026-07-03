@@ -1,0 +1,70 @@
+=== GeoOptimizer ===
+Contributors: geooptimizer
+Tags: seo, schema, llms, ai, structured-data, local-business
+Requires at least: 5.8
+Tested up to: 6.8
+Requires PHP: 7.4
+Stable tag: 2.0.0
+License: MIT
+License URI: https://opensource.org/licenses/MIT
+
+Generative Engine Optimization for WordPress — llms.txt, Schema.org JSON-LD, and GEO content analysis.
+
+== Description ==
+
+GeoOptimizer helps WordPress sites publish AI-friendly metadata so generative search engines can discover and cite your business accurately.
+
+**Features**
+
+* Generate and serve `/llms.txt` from your site
+* Output Schema.org JSON-LD in `wp_head`
+* Configure business profile, services, and hours
+* Industry templates for restaurants, legal, medical, and more
+* Admin tools to generate llms.txt and analyze site content
+* Automatic llms.txt cache refresh when content changes
+
+**Requirements**
+
+Install the plugin from the release zip (includes bundled PHP dependencies) or run `composer install` inside the plugin directory during development.
+
+== Installation ==
+
+1. Upload the plugin zip via **Plugins → Add New → Upload Plugin**, or install from this repository's release artifact.
+2. Activate **GeoOptimizer**.
+3. Open **Settings → GEO Optimizer** and enter your business details.
+4. Visit `https://yoursite.example/llms.txt` to confirm output.
+
+== Frequently Asked Questions ==
+
+= What is llms.txt? =
+
+llms.txt is an emerging convention for publishing a concise, machine-readable summary of your site for AI systems.
+
+= Does this plugin call external APIs? =
+
+Core llms.txt and structured data generation runs locally. Optional citation tracking features in the PHP library can use platform API keys if configured in custom integrations.
+
+= Why is /llms.txt returning 404? =
+
+Save the plugin settings once, then visit **Settings → Permalinks** and click **Save Changes** to flush rewrite rules.
+
+== Screenshots ==
+
+1. GeoOptimizer settings page with business profile and feature toggles.
+
+== Changelog ==
+
+= 2.0.0 =
+* WordPress plugin aligned with GeoOptimizer library 2.0.0
+* Services and business hours settings
+* Industry dropdown and feature toggles for JSON-LD and llms.txt
+* Cached llms.txt endpoint and improved admin actions
+* Structured data integration fixes
+
+= 1.0.0 =
+* Initial public release
+
+== Upgrade Notice ==
+
+= 2.0.0 =
+Major update with new settings fields and llms.txt caching. Re-save plugin settings and flush permalinks after upgrading.

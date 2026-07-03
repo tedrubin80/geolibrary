@@ -121,8 +121,8 @@ These items appear in earlier planning docs but are **not** in the codebase toda
 | Competitor / keyword analyzers | Not started |
 | Content optimizer modules (FAQ generator, meta optimizer) | Not started |
 | Advanced analytics dashboard | Citation tracking exists; no UI |
-| WordPress.org submission | Plugin works locally; not published to WP.org |
-| Packagist release | Package name defined; publish when ready |
+| WordPress.org submission | readme.txt and release zip ready; manual SVN upload required |
+| Packagist release | composer metadata and tag ready; manual Packagist submit required |
 
 ---
 
@@ -135,8 +135,10 @@ These items appear in earlier planning docs but are **not** in the codebase toda
 - [x] Add services/hours settings to plugin
 - [x] Expand PHPUnit and PHPStan coverage
 - [x] Reduce plugin build artifact bloat
-- [ ] Publish to Packagist
-- [ ] Submit WordPress plugin to wordpress.org
+- [x] Add WordPress.org readme and publishing docs
+- [x] Add GitHub release workflow and v2.0.0 tag
+- [ ] Publish to Packagist (submit repo at packagist.org — see [publishing.md](publishing.md))
+- [ ] Submit WordPress plugin to wordpress.org (upload release zip — see [publishing.md](publishing.md))
 
 ### Phase 2 — Developer experience
 

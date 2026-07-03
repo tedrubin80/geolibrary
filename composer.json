@@ -5,6 +5,10 @@
     "license": "MIT",
     "keywords": ["seo", "geo", "ai-search", "optimization", "llm", "generative-engine-optimization"],
     "homepage": "https://geooptimizer.dev",
+    "support": {
+        "issues": "https://github.com/tedrubin80/geolibrary/issues",
+        "source": "https://github.com/tedrubin80/geolibrary"
+    },
     "authors": [
         {
             "name": "GeoOptimizer",

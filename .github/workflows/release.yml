@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PHP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y php-cli php-xml php-mbstring php-curl php-zip unzip
+          php -v
+
+      - name: Install Composer
+        run: |
+          curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+          composer --version
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run tests
+        run: composer test
+
+      - name: Static analysis
+        run: composer phpstan
+
+      - name: Build release artifacts
+        run: php tools/build.php --plugin
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "GeoOptimizer ${GITHUB_REF_NAME#v}" \
+            --notes "See [docs/publishing.md](https://github.com/tedrubin80/geolibrary/blob/main/docs/publishing.md) for Packagist and WordPress.org steps." \
+            dist/geooptimizer-php-library.zip \
+            dist/geooptimizer-wordpress-plugin.zip

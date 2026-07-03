@@ -102,6 +102,7 @@ See [docs/development.md](docs/development.md) for build, CI, and security notes
 ## Documentation
 
 - [Development guide](docs/development.md)
+- [Publishing guide](docs/publishing.md)
 - [Usage guide](docs/usage-guide.md)
 - [How to build](docs/how-to-build.md)
 - [Project plan](docs/project-plan.md)

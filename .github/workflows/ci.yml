@@ -19,7 +19,7 @@ jobs:
       - name: Install PHP
         run: |
           sudo apt-get update
-          sudo apt-get install -y php-cli php-xml php-mbstring php-curl unzip
+          sudo apt-get install -y php-cli php-xml php-mbstring php-curl php-zip unzip
           php -v
 
       - name: Install Composer
@@ -38,6 +38,13 @@ jobs:
 
       - name: Audit dependencies
         run: composer audit
+
+      - name: Verify release build
+        run: |
+          php tools/build.php --plugin
+          test -f dist/geooptimizer-php-library.zip
+          test -f dist/geooptimizer-wordpress-plugin.zip
+          test -s dist/geooptimizer-wordpress-plugin.zip
 
   site:
     runs-on: ubuntu-latest
