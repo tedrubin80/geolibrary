@@ -57,7 +57,11 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "bin": ["bin/geo-optimizer"],
+    "bin": ["bin/geo-optimizer", "bin/geo-api"],
+    "suggest": {
+        "laravel/framework": "Required to use the Laravel service provider and facade.",
+        "symfony/framework-bundle": "Required to use the Symfony bundle integration."
+    },
     "archive": {
         "exclude": [
             "tests",

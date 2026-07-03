@@ -7,3 +7,5 @@ parameters:
     excludePaths:
         - src/CLI
         - src/StructuredData/SchemaGenerator.php
+        - src/Integrations/Laravel
+        - src/Integrations/Symfony

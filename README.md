@@ -21,6 +21,8 @@ Generative Engine Optimization is the practice of structuring web content so AI-
 - **Industry templates** — Pre-built baselines for 12+ industries
 - **Citation tracking** — Monitor mentions across major AI platforms (optional API keys)
 - **WordPress plugin** — Admin UI, automatic `llms.txt` endpoint, structured data in `wp_head`
+- **Framework integrations** — Laravel service provider, Symfony bundle
+- **REST API** — Automation endpoints with optional API key auth and rate limiting
 
 ## Requirements
 
@@ -103,6 +105,7 @@ See [docs/development.md](docs/development.md) for build, CI, and security notes
 
 - [Development guide](docs/development.md)
 - [Publishing guide](docs/publishing.md)
+- [Framework integrations](docs/integrations.md)
 - [Usage guide](docs/usage-guide.md)
 - [How to build](docs/how-to-build.md)
 - [Project plan](docs/project-plan.md)

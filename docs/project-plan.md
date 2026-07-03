@@ -8,7 +8,7 @@ GeoOptimizer is a PHP library and WordPress plugin for **Generative Engine Optim
 
 - **Website:** [geooptimizer.dev](https://geooptimizer.dev)
 - **Repository:** [github.com/tedrubin80/geolibrary](https://github.com/tedrubin80/geolibrary)
-- **Current version:** `2.0.0`
+- **Current version:** `2.1.0`
 
 ---
 
@@ -114,9 +114,9 @@ These items appear in earlier planning docs but are **not** in the codebase toda
 
 | Area | Notes |
 |------|-------|
-| Laravel / Symfony integrations | No service provider or bundle yet |
+| Laravel / Symfony integrations | Laravel service provider, facade, and Symfony bundle |
 | Shopify integration | Not started |
-| REST API / webhooks / rate limiting | Not started |
+| REST API / webhooks / rate limiting | REST API with rate limiting; webhooks not started |
 | A/B testing framework | Not started |
 | Competitor / keyword analyzers | Not started |
 | Content optimizer modules (FAQ generator, meta optimizer) | Not started |
@@ -142,11 +142,11 @@ These items appear in earlier planning docs but are **not** in the codebase toda
 
 ### Phase 2 — Developer experience
 
-- [ ] Laravel service provider
-- [ ] Symfony bundle
-- [ ] REST API for SaaS / automation use cases
-- [ ] More CLI validation and reporting commands
-- [ ] Integration tests against a WordPress test harness
+- [x] Laravel service provider
+- [x] Symfony bundle
+- [x] REST API for SaaS / automation use cases
+- [x] More CLI validation and reporting commands
+- [x] Integration tests against a WordPress test harness
 
 ### Phase 3 — Product features
 
@@ -167,7 +167,7 @@ composer audit
 php tools/build.php --plugin
 ```
 
-See [development.md](development.md) for environment and security notes.
+See [development.md](development.md) for environment and security notes. Framework integrations are documented in [integrations.md](integrations.md).
 
 ---
 
