@@ -9,6 +9,7 @@
 
 - **Website:** [geooptimizer.dev](https://geooptimizer.dev)
 - **Repository:** [github.com/tedrubin80/geolibrary](https://github.com/tedrubin80/geolibrary)
+- **WordPress plugin:** [Download latest zip](https://github.com/tedrubin80/geolibrary/releases/latest/download/geooptimizer-wordpress-plugin.zip)
 
 ## What is GEO?
 
@@ -33,9 +34,21 @@ Generative Engine Optimization is the practice of structuring web content so AI-
 
 ## Installation
 
+### PHP library (Composer)
+
 ```bash
 composer require geooptimizer/php-geo-optimizer
 ```
+
+### WordPress plugin
+
+Download the release zip (includes bundled dependencies):
+
+https://github.com/tedrubin80/geolibrary/releases/latest/download/geooptimizer-wordpress-plugin.zip
+
+In wp-admin: **Plugins → Add New → Upload Plugin**, upload the zip, activate, then open **Settings → GEO Optimizer**. The plugin is not on WordPress.org yet.
+
+### From source
 
 For local development from this repository:
 
@@ -78,13 +91,11 @@ tools/build.php               Build library / plugin zip artifacts
 
 ## WordPress plugin
 
-Download the latest release zip (includes bundled dependencies):
+Same download as above:
 
-**[Download geooptimizer-wordpress-plugin.zip](https://github.com/tedrubin80/geolibrary/releases/latest/download/geooptimizer-wordpress-plugin.zip)**
+https://github.com/tedrubin80/geolibrary/releases/latest/download/geooptimizer-wordpress-plugin.zip
 
-In wp-admin: **Plugins → Add New → Upload Plugin**, upload the zip, activate, then open **Settings → GEO Optimizer** and visit `/llms.txt` on your site.
-
-The plugin is not on WordPress.org yet. For local development:
+For local development from the repo:
 
 ```bash
 cd wordpress-plugin/geooptimizer
