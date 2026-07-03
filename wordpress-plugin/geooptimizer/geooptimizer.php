@@ -3,7 +3,7 @@
  * Plugin Name: GeoOptimizer
  * Plugin URI: https://github.com/tedrubin80/geolibrary
  * Description: Generative Engine Optimization for WordPress — llms.txt, structured data, and GEO content analysis.
- * Version: 2.2.0
+ * Version: 2.2.1
  * Author: GeoOptimizer
  * Author URI: https://geooptimizer.dev
  * License: MIT
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('GEOOPTIMIZER_VERSION', '2.2.0');
+define('GEOOPTIMIZER_VERSION', '2.2.1');
 define('GEOOPTIMIZER_PLUGIN_FILE', __FILE__);
 define('GEOOPTIMIZER_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GEOOPTIMIZER_PLUGIN_URL', plugin_dir_url(__FILE__));

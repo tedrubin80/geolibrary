@@ -4,7 +4,7 @@ Tags: seo, schema, llms, ai, structured-data, local-business
 Requires at least: 5.8
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -57,6 +57,9 @@ Save the plugin settings once, then visit **Settings → Permalinks** and click 
 1. GeoOptimizer settings page with business profile and feature toggles.
 
 == Changelog ==
+
+= 2.2.1 =
+* Fix Plugin URI and Author URI headers for WordPress.org submission
 
 = 2.2.0 =
 * Premium tier with license key, admin dashboard, bulk analysis, and competitor comparison
