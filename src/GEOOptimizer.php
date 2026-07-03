@@ -25,7 +25,7 @@ use GEOOptimizer\Exceptions\GEOException;
  * It provides a unified interface for all GEO optimization features
  * to help websites rank better in AI-powered search engines.
  *
- * @version 2.0.0
+ * @version 2.2.0
  */
 class GEOOptimizer
 {

@@ -91,6 +91,19 @@ php tools/build.php --plugin
 # → dist/geooptimizer-wordpress-plugin.zip
 ```
 
+Premium features unlock with a license key under **Settings → GEO Optimizer** (demo key: `GEO-DEMO-9444`).
+
+## Dashboard and API
+
+Serve the citation dashboard from `public/dashboard/` and run the REST API with:
+
+```bash
+php bin/geo-api
+# or: GEO_API_KEY=secret php bin/geo-api
+```
+
+See [integrations.md](docs/integrations.md) for REST endpoints and framework setup.
+
 ## Development
 
 ```bash

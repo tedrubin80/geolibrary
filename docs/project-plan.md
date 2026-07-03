@@ -38,7 +38,15 @@ tests/                            PHPUnit unit tests
 | Content analyzer | `src/Analysis/ContentAnalyzer.php` | Done |
 | Industry templates | `src/Templates/IndustryTemplateManager.php` | Done |
 | Citation tracker | `src/Analytics/CitationTracker.php` | Done |
+| Citation dashboard | `src/Analytics/CitationDashboard.php` | Done |
+| Bulk site analyzer | `src/Analysis/BulkSiteAnalyzer.php` | Done |
+| Competitor analyzer | `src/Analysis/CompetitorAnalyzer.php` | Done |
 | GEO readiness score | `src/Analytics/GEOReadinessScore.php` | Done |
+| Laravel integration | `src/Integrations/Laravel/*` | Done |
+| Symfony integration | `src/Integrations/Symfony/*` | Done |
+| REST API | `src/API/*`, `bin/geo-api` | Done |
+| Web dashboard UI | `public/dashboard/*` | Done |
+| WordPress premium tier | `src/Integrations/WordPress/Premium/*` | Done |
 | Platform adapters | `src/Platforms/*` | Done |
 | Cache layer | `src/Cache/*` | Done |
 | URL validation | `src/Http/UrlValidator.php` | Done |
@@ -57,6 +65,7 @@ tests/                            PHPUnit unit tests
 | `/llms.txt` rewrite endpoint with cache | Done |
 | Schema.org JSON-LD in `wp_head` | Done |
 | Admin AJAX: generate llms.txt, analyze content | Done |
+| Premium tier: license, dashboard, bulk/compare | Done |
 | llms.txt cache refresh on post save | Done |
 | Brain Monkey unit tests for sanitization/helpers | Done |
 
@@ -65,6 +74,8 @@ tests/                            PHPUnit unit tests
 | Item | Status |
 |------|--------|
 | GitHub Actions CI (PHPUnit, PHPStan, audit) | Done |
+| GitHub release workflow on version tags | Done |
+| Publish verification script (`tools/publish-verify.php`) | Done |
 | `tools/build.php` library zip | Done |
 | `tools/build.php --plugin` WordPress zip | Done |
 | Composer archive excludes for lean packages | Done |
@@ -84,7 +95,10 @@ Current unit tests cover:
 - `GEOReadinessScore`
 - Cache adapters (`FileCache`, `MemoryCache`)
 - `UrlValidator`
+- `BulkAndCompetitorAnalyzerTest`
+- `CitationDashboard` / REST API endpoint tests
 - WordPress `Plugin` sanitization and data helpers
+- WordPress premium license tests
 
 Run the suite:
 
@@ -108,37 +122,42 @@ The plugin build uses a staged copy of the library (`dist/library-staging`) so t
 
 ---
 
-## Planned / Not Yet Implemented
-
-These items appear in earlier planning docs but are **not** in the codebase today:
+## Future / Not Yet Implemented
 
 | Area | Notes |
 |------|-------|
-| Laravel / Symfony integrations | Laravel service provider, facade, and Symfony bundle |
 | Shopify integration | Not started |
-| REST API / webhooks / rate limiting | REST API with rate limiting; webhooks not started |
+| REST webhooks | Not started |
 | A/B testing framework | Not started |
-| Competitor / keyword analyzers | Not started |
 | Content optimizer modules (FAQ generator, meta optimizer) | Not started |
-| Advanced analytics dashboard | Citation tracking exists; no UI |
-| WordPress.org submission | readme.txt and release zip ready; manual SVN upload required |
-| Packagist release | composer metadata and tag ready; manual Packagist submit required |
+| Keyword analyzer | Not started |
+
+## External publishing (manual account steps)
+
+Release artifacts, readme, and workflows are ready. These steps require Packagist and WordPress.org accounts:
+
+| Channel | Status | Action |
+|---------|--------|--------|
+| GitHub releases | Done (v2.2.0) | Automatic on tag push |
+| Packagist | Not submitted | Submit repo at [packagist.org](https://packagist.org/) — see [publishing.md](publishing.md) |
+| WordPress.org | Not submitted | Upload release zip — see [publishing.md](publishing.md) |
 
 ---
 
 ## Near-Term Roadmap
 
-### Phase 1 — Stabilize (current)
+### Phase 1 — Stabilize
 
 - [x] Fix WordPress structured data integration
-- [x] Align version numbers to `2.0.0`
+- [x] Align version numbers across library and plugin
 - [x] Add services/hours settings to plugin
 - [x] Expand PHPUnit and PHPStan coverage
 - [x] Reduce plugin build artifact bloat
 - [x] Add WordPress.org readme and publishing docs
-- [x] Add GitHub release workflow and v2.0.0 tag
-- [ ] Publish to Packagist (submit repo at packagist.org — see [publishing.md](publishing.md))
-- [ ] Submit WordPress plugin to wordpress.org (upload release zip — see [publishing.md](publishing.md))
+- [x] Add GitHub release workflow and version tags through v2.2.0
+- [x] Add publish verification script (`tools/publish-verify.php`)
+- [ ] Publish to Packagist (manual — see [publishing.md](publishing.md))
+- [ ] Submit WordPress plugin to wordpress.org (manual — see [publishing.md](publishing.md))
 
 ### Phase 2 — Developer experience
 

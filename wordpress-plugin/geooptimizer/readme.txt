@@ -21,6 +21,7 @@ GeoOptimizer helps WordPress sites publish AI-friendly metadata so generative se
 * Configure business profile, services, and hours
 * Industry templates for restaurants, legal, medical, and more
 * Admin tools to generate llms.txt and analyze site content
+* Premium tier: citation dashboard, bulk analysis, and competitor comparison (license key)
 * Automatic llms.txt cache refresh when content changes
 
 **Requirements**
