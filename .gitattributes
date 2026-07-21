@@ -4,7 +4,6 @@
 /coverage export-ignore
 /.github export-ignore
 /wordpress-plugin export-ignore
-/public export-ignore
 /tools export-ignore
 /.phpunit.result.cache export-ignore
 /phpunit.xml export-ignore
