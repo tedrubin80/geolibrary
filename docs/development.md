@@ -46,13 +46,21 @@ Plugin and library download artifacts are published on [GitHub Releases](https:/
 
 ## Railway deploy
 
-The repo includes a `Dockerfile` and `railway.toml`. Railway builds with Composer (`--no-dev`) and starts:
+The repo includes a `Dockerfile`, `railway.toml`, and `bin/serve`. Railway builds with Composer (`--no-dev`) and starts via the absolute entrypoint:
+
+```bash
+/app/bin/serve
+```
+
+That script resolves `/app/public` from its own location (not process cwd) and runs:
 
 ```bash
 php -S 0.0.0.0:$PORT -t /app/public /app/public/router.php
 ```
 
-Health check path: `/api/health`. Absolute paths are required in the container so PHP can resolve the document root regardless of process cwd.
+Health check path: `/api/health`.
+
+If Railway still fails with "Directory public does not exist", clear any **custom Start Command** in the Railway service settings — a dashboard override with relative `public` paths will ignore the Dockerfile `CMD`.
 
 ## Build artifacts
 

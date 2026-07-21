@@ -16,7 +16,12 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-di
 
 COPY . .
 
+RUN chmod +x /app/bin/serve \
+    && test -d /app/public \
+    && test -f /app/public/router.php
+
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-8080} -t /app/public /app/public/router.php"]
+# Absolute entrypoint — ignores process cwd and Railway start-command path quirks.
+CMD ["/app/bin/serve"]

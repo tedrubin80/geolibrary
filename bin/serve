@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+
+# Resolve app root from this script so cwd never matters (Railway/Nixpacks quirks).
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+PUBLIC="$ROOT/public"
+ROUTER="$PUBLIC/router.php"
+PORT="${PORT:-8080}"
+
+if [ ! -d "$PUBLIC" ]; then
+  echo "ERROR: document root missing: $PUBLIC (cwd=$(pwd), root=$ROOT)" >&2
+  ls -la "$ROOT" >&2 || true
+  exit 1
+fi
+
+if [ ! -f "$ROUTER" ]; then
+  echo "ERROR: router missing: $ROUTER" >&2
+  ls -la "$PUBLIC" >&2 || true
+  exit 1
+fi
+
+echo "Starting GeoOptimizer on 0.0.0.0:${PORT} (root=${PUBLIC})"
+exec php -S "0.0.0.0:${PORT}" -t "$PUBLIC" "$ROUTER"
