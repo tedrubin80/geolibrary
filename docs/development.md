@@ -49,10 +49,10 @@ Plugin and library download artifacts are published on [GitHub Releases](https:/
 The repo includes a `Dockerfile` and `railway.toml`. Railway builds with Composer (`--no-dev`) and starts:
 
 ```bash
-php -S 0.0.0.0:$PORT -t public public/router.php
+php -S 0.0.0.0:$PORT -t /app/public /app/public/router.php
 ```
 
-Health check path: `/api/health`.
+Health check path: `/api/health`. Absolute paths are required in the container so PHP can resolve the document root regardless of process cwd.
 
 ## Build artifacts
 
