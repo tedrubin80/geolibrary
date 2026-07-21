@@ -15,10 +15,28 @@ if (function_exists('getallheaders')) {
     }
 }
 
+$path = $_SERVER['GEO_API_PATH'] ?? null;
+if (!is_string($path) || $path === '') {
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+    $path = parse_url($requestUri, PHP_URL_PATH);
+    $path = is_string($path) ? $path : '/';
+
+    // When served under /api from the public document root, strip the prefix.
+    if ($path === '/api' || strpos($path, '/api/') === 0) {
+        $path = substr($path, strlen('/api'));
+        if ($path === '' || $path === false) {
+            $path = '/';
+        }
+        if ($path[0] !== '/') {
+            $path = '/' . $path;
+        }
+    }
+}
+
 $body = file_get_contents('php://input');
 $response = $controller->handle(
     $_SERVER['REQUEST_METHOD'] ?? 'GET',
-    $_SERVER['REQUEST_URI'] ?? '/',
+    $path,
     $headers,
     $body === false ? null : $body,
     $_GET

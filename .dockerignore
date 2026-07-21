@@ -1,0 +1,14 @@
+.git
+.github
+.claude
+coverage
+dist
+tests
+docs
+wordpress-plugin
+tools
+*.md
+.phpunit.result.cache
+.php-cs-fixer.cache
+.env
+.env.*

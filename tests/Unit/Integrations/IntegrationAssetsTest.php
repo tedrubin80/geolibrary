@@ -28,6 +28,9 @@ class IntegrationAssetsTest extends TestCase
     public function testApiRouterExists(): void
     {
         $this->assertFileExists(dirname(__DIR__, 3) . '/public/api/index.php');
+        $this->assertFileExists(dirname(__DIR__, 3) . '/public/router.php');
         $this->assertFileExists(dirname(__DIR__, 3) . '/bin/geo-api');
+        $this->assertFileExists(dirname(__DIR__, 3) . '/Dockerfile');
+        $this->assertFileExists(dirname(__DIR__, 3) . '/railway.toml');
     }
 }

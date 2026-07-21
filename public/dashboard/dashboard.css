@@ -2,6 +2,26 @@
   padding: 2rem 0 4rem;
 }
 
+.dashboard h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin-bottom: 0.35rem;
+}
+
+.dashboard h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
 .dashboard-panel {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -13,6 +33,16 @@
 .dashboard-desc {
   color: var(--muted);
   margin-bottom: 1rem;
+  font-size: 0.9375rem;
+}
+
+.dashboard-desc code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--accent);
+  background: var(--surface-2);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
 }
 
 .dashboard-form {
@@ -25,6 +55,7 @@
   display: grid;
   gap: 0.35rem;
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .dashboard-form input,
@@ -38,22 +69,40 @@
   font: inherit;
 }
 
+.dashboard-form input:focus,
+.dashboard-textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .dashboard-button {
   appearance: none;
   border: 0;
   border-radius: var(--r);
-  background: var(--primary);
-  color: white;
+  background: var(--accent);
+  color: var(--accent-ink);
   padding: 0.65rem 1rem;
   font: inherit;
+  font-weight: 600;
   cursor: pointer;
   width: fit-content;
+  transition: filter 0.15s var(--ease);
+}
+
+.dashboard-button:hover {
+  filter: brightness(1.06);
 }
 
 .dashboard-button--secondary {
   background: var(--surface-2);
   color: var(--ink);
   border: 1px solid var(--border);
+  filter: none;
+}
+
+.dashboard-button--secondary:hover {
+  background: var(--border);
+  filter: none;
 }
 
 .metric-grid {
@@ -74,6 +123,7 @@
   display: block;
   font-size: 1.5rem;
   margin-bottom: 0.25rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .dashboard-pre {
@@ -84,9 +134,14 @@
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  line-height: 1.55;
 }
 
 .dashboard-textarea {
   margin-bottom: 1rem;
   min-height: 120px;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
 }

@@ -3,142 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GeoOptimizer — PHP Library for Generative Engine Optimization</title>
-  <meta name="description" content="A PHP library for optimizing content to appear in ChatGPT, Perplexity, Claude, and Google AI search results. Generates llms.txt, structured data, and citation-ready markup.">
+  <title>GeoOptimizer — PHP tooling for Generative Engine Optimization</title>
+  <meta name="description" content="GeoOptimizer is a PHP library that generates llms.txt, Schema.org markup, and GEO readiness analysis for AI search engines.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/site.css">
 </head>
 <body>
 
+  <div class="atmosphere" aria-hidden="true"></div>
+
   <header class="site-header">
     <div class="wrap">
       <a href="/" class="logo">
-        <span class="logo-mark" aria-hidden="true">G</span>
+        <span class="logo-mark" aria-hidden="true"></span>
         GeoOptimizer
       </a>
       <nav class="site-nav" aria-label="Site">
         <a href="https://github.com/tedrubin80/geolibrary#readme" rel="noopener noreferrer">Docs</a>
-        <a href="#products">Products</a>
-        <a href="https://github.com/tedrubin80/geolibrary" rel="noopener noreferrer" class="nav-cta">GitHub ↗</a>
+        <a href="/dashboard/">Dashboard</a>
+        <a href="https://github.com/tedrubin80/geolibrary" rel="noopener noreferrer" class="nav-cta">GitHub</a>
       </nav>
     </div>
   </header>
 
   <main>
 
-    <!-- Hero -->
     <section class="hero" aria-label="Introduction">
-      <div class="wrap">
-        <span class="hero-badge">PHP · Generative Engine Optimization</span>
-        <h1>Rank in AI search.<br>Not just Google.</h1>
-        <p class="hero-desc">
-          GeoOptimizer generates llms.txt files, Schema.org structured data, and citation-ready markup so AI search engines accurately find and cite your site.
-        </p>
-        <div class="install" role="region" aria-label="Install command">
-          <span class="install-prefix" aria-hidden="true">$</span>
-          <span class="install-cmd">composer require geooptimizer/php-geo-optimizer</span>
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="brand-lockup">GeoOptimizer</p>
+          <h1>Structure your site so AI search can cite it.</h1>
+          <p class="hero-desc">
+            A PHP library for Generative Engine Optimization — llms.txt files, Schema.org structured data, and readiness scoring for ChatGPT, Claude, Perplexity, and Google AI Overviews.
+          </p>
+          <div class="hero-actions">
+            <div class="install" role="region" aria-label="Install command">
+              <span class="install-prefix" aria-hidden="true">$</span>
+              <code class="install-cmd">composer require geooptimizer/php-geo-optimizer</code>
+              <button type="button" class="copy-btn" data-copy="composer require geooptimizer/php-geo-optimizer" aria-label="Copy install command">Copy</button>
+            </div>
+            <a class="btn-secondary" href="https://github.com/tedrubin80/geolibrary/releases/latest" rel="noopener noreferrer">Releases on GitHub</a>
+          </div>
         </div>
-      </div>
-    </section>
-
-    <!-- Features -->
-    <section class="features" aria-label="Features">
-      <div class="wrap">
-        <h2 class="section-heading">What's in the library</h2>
-        <ul class="feature-grid">
-          <li class="feature-cell">
-            <div class="feature-name">llms.txt Generation</div>
-            <p class="feature-desc">Structured text files that tell AI systems exactly what your site is, what it does, and how to cite it.</p>
-          </li>
-          <li class="feature-cell">
-            <div class="feature-name">Structured Data</div>
-            <p class="feature-desc">Schema.org markup tuned for AI search engines, covering local business, products, FAQs, and more.</p>
-          </li>
-          <li class="feature-cell">
-            <div class="feature-name">Content Analysis</div>
-            <p class="feature-desc">Score content against GEO readiness criteria. See what AI search engines will struggle with before they do.</p>
-          </li>
-          <li class="feature-cell">
-            <div class="feature-name">Citation Tracking</div>
-            <p class="feature-desc">Monitor how AI platforms cite your business across ChatGPT, Perplexity, Claude, and Google AI.</p>
-          </li>
-          <li class="feature-cell">
-            <div class="feature-name">Industry Templates</div>
-            <p class="feature-desc">Pre-built optimization templates for 12+ industries. Start with a working baseline, not a blank slate.</p>
-          </li>
-          <li class="feature-cell">
-            <div class="feature-name">Platform Adapters</div>
-            <p class="feature-desc">Platform-specific output adapters for Claude, OpenAI, Perplexity, and Google AI. Each has its own quirks.</p>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- Quick Start -->
-    <section class="quickstart" aria-label="Quick start">
-      <div class="wrap">
-        <h2 class="section-heading">Quick start</h2>
-        <p class="quickstart-desc">From install to your first <code style="font-family:'SFMono-Regular',Consolas,monospace;font-size:0.875em;background:var(--surface-2);padding:0.1em 0.35em;border-radius:3px;color:var(--accent)">llms.txt</code> in three steps.</p>
-        <div class="quickstart-cols">
-          <ol class="steps" aria-label="Setup steps">
-            <li class="step">
-              <span class="step-n" aria-hidden="true">1</span>
-              <div class="step-body">
-                <h4>Install via Composer</h4>
-                <p>Requires PHP 7.4+. No framework dependencies.</p>
-              </div>
-            </li>
-            <li class="step">
-              <span class="step-n" aria-hidden="true">2</span>
-              <div class="step-body">
-                <h4>Describe your business</h4>
-                <p>Pass your name, industry, location, and services. GeoOptimizer handles formatting, structure, and schema.</p>
-              </div>
-            </li>
-            <li class="step">
-              <span class="step-n" aria-hidden="true">3</span>
-              <div class="step-body">
-                <h4>Write <code>llms.txt</code> to your public directory</h4>
-                <p>AI search crawlers discover and index it automatically. No plugin or CDN required.</p>
-              </div>
-            </li>
-          </ol>
-          <pre class="codeblock" aria-label="PHP usage example"><span class="cm">// composer require geooptimizer/php-geo-optimizer</span>
-
+        <pre class="hero-code" aria-label="PHP usage example"><span class="cm">// Write an llms.txt your crawlers can find</span>
 <span class="kw">use</span> <span class="ty">GEOOptimizer\GEOOptimizer</span>;
 
 <span class="va">$geo</span> = <span class="kw">new</span> <span class="ty">GEOOptimizer</span>();
-
 <span class="va">$result</span> = <span class="va">$geo</span>-&gt;<span class="fn">optimize</span>([
-    <span class="str">'business_name'</span> =&gt; <span class="str">'Acme Coffee'</span>,
-    <span class="str">'industry'</span>      =&gt; <span class="str">'restaurant'</span>,
-    <span class="str">'location'</span>      =&gt; <span class="str">'San Francisco, CA'</span>,
-    <span class="str">'services'</span>      =&gt; [<span class="str">'Espresso'</span>, <span class="str">'Pour Over'</span>],
+  <span class="str">'business_name'</span> =&gt; <span class="str">'Harbor Roasters'</span>,
+  <span class="str">'industry'</span>      =&gt; <span class="str">'restaurant'</span>,
+  <span class="str">'location'</span>      =&gt; <span class="str">'Portland, OR'</span>,
+  <span class="str">'services'</span>      =&gt; [<span class="str">'Espresso'</span>, <span class="str">'Wholesale'</span>],
 ]);
 
+<span class="fn">file_put_contents</span>(<span class="str">'public/llms.txt'</span>, <span class="va">$result</span>[<span class="str">'llms_txt'</span>]);</pre>
+      </div>
+    </section>
+
+    <section class="capabilities" aria-label="Library capabilities">
+      <div class="wrap">
+        <h2 class="section-heading">What it ships</h2>
+        <dl class="cap-list">
+          <div class="cap-item">
+            <dt>llms.txt generation</dt>
+            <dd>Site summaries formatted for AI systems: what you do, where you operate, and how to cite you.</dd>
+          </div>
+          <div class="cap-item">
+            <dt>Structured data</dt>
+            <dd>Schema.org JSON-LD for local business, services, FAQs, and related types.</dd>
+          </div>
+          <div class="cap-item">
+            <dt>Content analysis</dt>
+            <dd>GEO readiness scores with concrete gaps to fix before crawlers hit the page.</dd>
+          </div>
+          <div class="cap-item">
+            <dt>Citation tracking</dt>
+            <dd>Optional monitoring of how platforms mention your business over time.</dd>
+          </div>
+          <div class="cap-item">
+            <dt>Industry templates</dt>
+            <dd>Baselines for a dozen-plus industries so you start from working defaults.</dd>
+          </div>
+          <div class="cap-item">
+            <dt>Platform adapters</dt>
+            <dd>Output helpers tuned for Claude, OpenAI, Perplexity, and Google AI quirks.</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="quickstart" aria-label="Quick start">
+      <div class="wrap">
+        <h2 class="section-heading">From Composer to llms.txt</h2>
+        <p class="section-lede">Install the package, describe the business, write the file to your public directory. No CDN or plugin required for the library path.</p>
+        <div class="quickstart-flow">
+          <div class="flow-copy">
+            <p><strong>Install</strong> with Composer on PHP 7.4+. Framework-agnostic — Laravel, Symfony, or plain PHP.</p>
+            <p><strong>Describe</strong> name, industry, location, and services. The library handles formatting and schema.</p>
+            <p><strong>Publish</strong> <code>llms.txt</code> under your web root. Crawlers discover it like any other public file.</p>
+          </div>
+          <pre class="codeblock" aria-label="Minimal optimize call"><span class="va">$result</span> = <span class="va">$geo</span>-&gt;<span class="fn">optimize</span>($business);
 <span class="fn">file_put_contents</span>(
-    <span class="str">'public/llms.txt'</span>,
-    <span class="va">$result</span>[<span class="str">'llms_txt'</span>]
+  <span class="str">'public/llms.txt'</span>,
+  <span class="va">$result</span>[<span class="str">'llms_txt'</span>]
 );</pre>
         </div>
       </div>
     </section>
 
-    <!-- Products -->
-    <section class="products" id="products" aria-label="Products">
+    <section class="products" id="products" aria-label="Distribution">
       <div class="wrap">
-        <h2 class="section-heading">Two ways to use it</h2>
+        <h2 class="section-heading">Two distribution paths</h2>
         <div class="product-cols">
-          <div class="product-card">
-            <h3>PHP Library <span class="tag">Standalone</span></h3>
-            <p>Framework-agnostic. Composer installable. Works in any PHP 7.4+ project — Laravel, Symfony, plain PHP, or custom stacks.</p>
+          <article class="product-block">
+            <h3>PHP library</h3>
+            <p>Composer package for any PHP 7.4+ project. Docs and source live on GitHub; installs come from Packagist.</p>
             <pre class="pkg">composer require geooptimizer/php-geo-optimizer</pre>
-          </div>
-          <div class="product-card">
-            <h3>WordPress Plugin <span class="tag">Plugin</span></h3>
-            <p>Native WordPress integration with admin dashboard, automatic llms.txt generation on publish, and per-page structured data. Not on WordPress.org yet — download the release zip.</p>
-            <a class="product-download" href="https://github.com/tedrubin80/geolibrary/releases/latest/download/geooptimizer-wordpress-plugin.zip" rel="noopener noreferrer">Download plugin zip ↓</a>
-            <p class="product-note">In wp-admin: <strong>Plugins → Add New → Upload Plugin</strong>, then activate and open <strong>Settings → GEO Optimizer</strong>.</p>
-          </div>
+            <a href="https://github.com/tedrubin80/geolibrary" rel="noopener noreferrer">View repository</a>
+          </article>
+          <article class="product-block">
+            <h3>WordPress plugin</h3>
+            <p>Admin settings, automatic <code>llms.txt</code> endpoint, and structured data in <code>wp_head</code>. Download the release zip from GitHub — not on WordPress.org yet.</p>
+            <a class="product-download" href="https://github.com/tedrubin80/geolibrary/releases/latest/download/geooptimizer-wordpress-plugin.zip" rel="noopener noreferrer">Download plugin from GitHub</a>
+            <p class="product-note">In wp-admin: <strong>Plugins → Add New → Upload Plugin</strong>, activate, then open <strong>Settings → GEO Optimizer</strong>.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -146,12 +136,36 @@
   </main>
 
   <footer class="site-footer">
-    <span>GeoOptimizer &copy; 2026</span>
-    <nav class="footer-links" aria-label="Footer">
-      <a href="https://github.com/tedrubin80/geolibrary#readme" rel="noopener noreferrer">Documentation</a>
-      <a href="https://github.com/tedrubin80/geolibrary" rel="noopener noreferrer">GitHub</a>
-    </nav>
+    <div class="wrap footer-inner">
+      <span>GeoOptimizer · MIT · 2026</span>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="https://github.com/tedrubin80/geolibrary#readme" rel="noopener noreferrer">Documentation</a>
+        <a href="https://github.com/tedrubin80/geolibrary/releases" rel="noopener noreferrer">Releases</a>
+        <a href="https://github.com/tedrubin80/geolibrary" rel="noopener noreferrer">GitHub</a>
+      </nav>
+    </div>
   </footer>
+
+  <script>
+    (function () {
+      var buttons = document.querySelectorAll('[data-copy]');
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var text = btn.getAttribute('data-copy') || '';
+          if (!navigator.clipboard) return;
+          navigator.clipboard.writeText(text).then(function () {
+            var prev = btn.textContent;
+            btn.textContent = 'Copied';
+            btn.classList.add('is-copied');
+            setTimeout(function () {
+              btn.textContent = prev;
+              btn.classList.remove('is-copied');
+            }, 1600);
+          });
+        });
+      });
+    })();
+  </script>
 
 </body>
 </html>
